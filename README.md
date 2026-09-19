@@ -4,7 +4,7 @@
 > **College Hackathon Presentation & Rural Civic-Tech Innovation**  
 > Empowering rural communities across India with live GPS water tanker tracking, AI electricity outage forecasts, emergency Jan Aushadhi generic medicine locator, and 2G feature phone offline SMS fallback.
 
-🌐 **Live Web & PWA Install Link:** [https://Golu_kumar.github.io/GramSetu/](https://r.github.io/GramSetu/)  
+🌐 **Live Web & PWA Install Link:** [gram-setu-iota.vercel.app](gram-setu-iota.vercel.app)  
 📱 **Direct Mobile & Desktop Install:** Visit the link in Google Chrome, Safari, or Edge and click **"Install App"** to add directly to your home screen with zero app store download needed.
 
 ---
