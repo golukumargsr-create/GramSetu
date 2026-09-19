@@ -1,0 +1,2365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <title>GramSetu (ग्रामसेतु) | Rural Lifeline & Utility Intelligence Platform</title>
+  <meta name="description"
+    content="Empowering rural communities with real-time water tanker tracking, AI electricity outage forecasts, emergency medicine stock locator, and offline SMS fallback.">
+  <meta name="theme-color" content="#102133">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="GramSetu">
+  <meta name="application-name" content="GramSetu">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Leaflet CSS for Village GIS Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Canvas Confetti for celebrations -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- AUTHENTIC MOBILE APP VIEWPORT SHELL -->
+  <div class="app-viewport-wrapper">
+    <div class="app-container" id="main-app-container">
+
+      <!-- REAL-LIFE MOBILE STATUS BAR -->
+      <div class="mobile-status-bar">
+        <div class="status-time" id="status-bar-time">9:41</div>
+        <div class="status-icons">
+          <span class="status-network-type">5G</span>
+          <!-- Signal bars -->
+          <svg width="15" height="11" viewBox="0 0 17 11" fill="none" stroke="currentColor" stroke-width="1.2">
+            <rect x="0.5" y="8" width="2.2" height="3" rx="0.5" fill="currentColor" />
+            <rect x="4.5" y="5.5" width="2.2" height="5.5" rx="0.5" fill="currentColor" />
+            <rect x="8.5" y="3" width="2.2" height="8" rx="0.5" fill="currentColor" />
+            <rect x="12.5" y="0.5" width="2.2" height="10.5" rx="0.5" fill="currentColor" />
+          </svg>
+          <!-- Wi-Fi wave -->
+          <svg width="14" height="11" viewBox="0 0 16 12" fill="currentColor">
+            <path d="M8 9.8a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2zm-4.7-3.3a6.7 6.7 0 0 1 9.4 0 .8.8 0 0 0 1.1-1.1 8.3 8.3 0 0 0-11.6 0 .8.8 0 0 0 1.1 1.1zm-2.4-2.4a10.1 10.1 0 0 1 14.2 0 .8.8 0 0 0 1.1-1.1 11.7 11.7 0 0 0-16.4 0 .8.8 0 0 0 1.1 1.1z"/>
+          </svg>
+          <!-- Battery Pill -->
+          <div class="status-battery">
+            <div class="battery-level">98%</div>
+            <div class="battery-icon-pill">
+              <div class="battery-icon-fill" style="width: 88%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUTHENTIC NATIVE MOBILE APP HEADER -->
+      <header class="mobile-app-header">
+        <!-- Brand, Village Selector & Action Bar -->
+        <div class="header-row-top">
+          <div class="brand-badge">
+            <div class="brand-logo-icon">
+              <img src="logo.png" alt="GramSetu Logo">
+            </div>
+            <div class="brand-text">
+              <div style="display: flex; align-items: center; gap: 5px;">
+                <h1>GramSetu</h1>
+                <span class="live-network-pulse" style="padding: 1px 5px; font-size: 8px;">
+                  <span class="pulse-dot-anim"></span>
+                  <span id="header-pulse-text">Live</span>
+                </span>
+              </div>
+              <button class="village-location-btn" id="btn-open-village-modal" title="Change Village / GPS Location">
+                <i data-lucide="map-pin" style="width: 10px; height: 10px; color: var(--c-turmeric);"></i>
+                <span id="current-village-name">Rampur</span>, <span id="current-village-dist">Sitapur</span>
+                <i data-lucide="chevron-down" style="width: 9px; height: 9px;"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Header Action Icons -->
+          <div class="header-quick-actions">
+            <!-- Direct Sunlight Mode -->
+            <button class="header-action-icon" id="btn-toggle-sunlight" title="Direct Sunlight High-Contrast Mode">
+              <i data-lucide="sun" style="width: 14px; height: 14px; color: #F59E0B;"></i>
+              <span id="sunlight-mode-text" style="display: none;">Sunlight</span>
+            </button>
+
+            <!-- Zero-Signal Offline QR Mesh Handshake -->
+            <button class="header-action-icon" id="btn-open-qr-mesh" title="Zero-Signal P2P QR Handshake">
+              <i data-lucide="qr-code" style="width: 14px; height: 14px; color: #38BDF8;"></i>
+            </button>
+
+            <!-- 2G Feature Phone SMS Simulator -->
+            <button class="header-action-icon" id="btn-open-sms-sim" title="Keypad Phone 5-Word SMS (56070)">
+              <i data-lucide="phone" style="width: 13px; height: 13px; color: #CBD5E1;"></i>
+            </button>
+
+            <!-- Network Status Indicator -->
+            <button class="header-action-icon" id="btn-toggle-network" title="Network Connection Status">
+              <i data-lucide="wifi" id="wifi-icon" style="width: 13px; height: 13px; color: #4ADE80;"></i>
+              <span id="network-status-text" style="display: none;">Online</span>
+            </button>
+
+            <!-- Language Switcher -->
+            <button class="header-action-pill" id="btn-lang-toggle" title="Switch Language">
+              <span id="lang-indicator">हिन्दी</span>
+            </button>
+
+            <!-- Notifications Bell -->
+            <button class="header-action-icon" id="btn-open-notifications" title="Live Village Alerts" style="position: relative;">
+              <i data-lucide="bell" style="width: 14px; height: 14px; color: var(--c-turmeric);"></i>
+              <span id="notif-badge" class="notif-badge" style="top: -3px; right: -3px;">3</span>
+            </button>
+
+            <!-- User Profile / Login -->
+            <button class="auth-status-pill" id="btn-open-auth-modal" title="User Login & Location Profile">
+              <i data-lucide="user" style="width: 12px; height: 12px; color: #93C5FD;"></i>
+              <span id="auth-user-label" data-i18n="loginBtnLabel">Login</span>
+            </button>
+
+            <!-- Emergency SOS Trigger Button -->
+            <button class="sos-trigger-btn" id="btn-trigger-sos" title="Emergency SOS Dispatch">
+              <i data-lucide="alert-triangle" style="width: 11px; height: 11px;"></i>
+              <span>SOS</span>
+            </button>
+
+            <!-- PWA 1-Click Install Button -->
+            <button class="pwa-header-install-btn" id="btn-install-pwa-header" title="Install GramSetu App (PWA)">
+              <i data-lucide="download" style="width: 13px; height: 13px;"></i>
+              <span class="install-btn-text">Install App</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- In-App Mobile Search Bar -->
+        <div class="mobile-search-bar-wrap">
+          <i data-lucide="search" class="mobile-search-icon" style="width: 14px; height: 14px;"></i>
+          <input type="text" class="mobile-search-input" id="global-search-input" placeholder="Search medicines, mandi, schemes, tankers...">
+          <button class="mobile-search-action-btn" id="btn-med-scan" title="Scan Medicine Strip / QR">
+            <i data-lucide="scan" style="width: 13px; height: 13px;"></i>
+          </button>
+          <button class="mobile-search-action-btn mic-btn" id="btn-voice-assistant" title="Voice Search (Speak)">
+            <i data-lucide="mic" style="width: 13px; height: 13px;"></i>
+          </button>
+        </div>
+
+        <!-- Horizontal Swipeable Module Category Pills -->
+        <div class="mobile-category-pills">
+          <button class="category-pill-btn active" data-target="home">
+            <i data-lucide="layout-dashboard" style="width: 12px; height: 12px;"></i>
+            <span>Dashboard</span>
+          </button>
+          <button class="category-pill-btn" data-target="krishi">
+            <i data-lucide="sprout" style="width: 12px; height: 12px; color: #22C55E;"></i>
+            <span>Krishi Setu</span>
+          </button>
+          <button class="category-pill-btn" data-target="yojna">
+            <i data-lucide="landmark" style="width: 12px; height: 12px; color: #A855F7;"></i>
+            <span>Sarkari Yojna</span>
+          </button>
+          <button class="category-pill-btn" data-target="water">
+            <i data-lucide="droplet" style="width: 12px; height: 12px; color: #38BDF8;"></i>
+            <span>Jal Setu</span>
+          </button>
+          <button class="category-pill-btn" data-target="power">
+            <i data-lucide="zap" style="width: 12px; height: 12px; color: #F59E0B;"></i>
+            <span>Urja Sangam</span>
+          </button>
+          <button class="category-pill-btn" data-target="medicine">
+            <i data-lucide="pill" style="width: 12px; height: 12px; color: #10B981;"></i>
+            <span>Jan Aushadhi</span>
+          </button>
+          <button class="category-pill-btn" data-target="map">
+            <i data-lucide="map" style="width: 12px; height: 12px; color: #818CF8;"></i>
+            <span>Village Map</span>
+          </button>
+          <button class="category-pill-btn" data-target="report">
+            <i data-lucide="message-square" style="width: 12px; height: 12px; color: #F87171;"></i>
+            <span>Public Audit</span>
+          </button>
+          <button class="category-pill-btn" data-target="pitch">
+            <i data-lucide="presentation" style="width: 12px; height: 12px; color: #FBBF24;"></i>
+            <span>Architecture</span>
+          </button>
+        </div>
+
+        <!-- Offline Sync Status Banner -->
+        <div class="offline-toast" id="offline-sync-banner" style="display: none; margin-top: 6px;">
+          <span class="status-dot orange"></span>
+          <span id="offline-banner-msg">Offline mode active · Local changes queued</span>
+          <span class="offline-badge" id="sync-queue-count" style="display: none;">0</span>
+        </div>
+
+        <!-- Hidden Tour / PWA triggers for JS bindings -->
+        <button id="btn-run-hero-tour" style="display: none;"></button>
+        <button id="btn-install-pwa" style="display: none;"></button>
+      </header>
+
+    <!-- MAIN SCROLLABLE CONTENT AREA -->
+    <main class="app-content" id="app-content-body">
+
+      <!-- ================= 1. HOME SCREEN / DASHBOARD ================= -->
+      <section class="tab-screen active" id="tab-home">
+
+        <!-- 4-COLUMN KPI METRICS STATS ROW -->
+        <div class="dashboard-kpi-grid">
+          <!-- Card 1: Water Tanker -->
+          <div class="dashboard-kpi-card" onclick="window.GramSetuApp.switchTab('water')">
+            <div class="dashboard-kpi-top">
+              <span class="dashboard-kpi-label">Water Tanker Telemetry</span>
+              <div class="dashboard-kpi-icon" style="background: #E0F2FE; color: #0284C7;">
+                <i data-lucide="droplet" style="width: 20px; height: 20px;"></i>
+              </div>
+            </div>
+            <div class="dashboard-kpi-value" id="metric-water-eta">8 Min</div>
+            <div style="font-size: 11px; color: var(--c-ink-soft); margin-top: 2px;">Approaching Ward 4 (340m away)</div>
+            <div class="dashboard-kpi-footer">
+              <span class="chip chip-info" style="font-size: 9px;">4,200L / 5,000L Remaining</span>
+              <span style="color: #0284C7; font-weight: 700; display: flex; align-items: center; gap: 2px;">Track GPS <i data-lucide="chevron-right" style="width: 12px; height: 12px;"></i></span>
+            </div>
+          </div>
+
+          <!-- Card 2: Power Outage Forecast -->
+          <div class="dashboard-kpi-card" onclick="window.GramSetuApp.switchTab('power')">
+            <div class="dashboard-kpi-top">
+              <span class="dashboard-kpi-label">AI Outage Forecast</span>
+              <div class="dashboard-kpi-icon" style="background: #FEF3C7; color: #D97706;">
+                <i data-lucide="zap" style="width: 20px; height: 20px;"></i>
+              </div>
+            </div>
+            <div class="dashboard-kpi-value">2:00 – 4:15 PM</div>
+            <div style="font-size: 11px; color: var(--c-ink-soft); margin-top: 2px;">33kV Feeder Load Shedding Risk</div>
+            <div class="dashboard-kpi-footer">
+              <span class="chip chip-warning" style="font-size: 9px;">88% Probability</span>
+              <span style="color: #D97706; font-weight: 700; display: flex; align-items: center; gap: 2px;">Backup Power <i data-lucide="chevron-right" style="width: 12px; height: 12px;"></i></span>
+            </div>
+          </div>
+
+          <!-- Card 3: Mandi Rates Benchmark -->
+          <div class="dashboard-kpi-card" onclick="window.GramSetuApp.switchTab('krishi')">
+            <div class="dashboard-kpi-top">
+              <span class="dashboard-kpi-label">APMC Mandi Bhav</span>
+              <div class="dashboard-kpi-icon" style="background: #DCFCE7; color: #16A34A;">
+                <i data-lucide="sprout" style="width: 20px; height: 20px;"></i>
+              </div>
+            </div>
+            <div class="dashboard-kpi-value">Wheat ₹2,420</div>
+            <div style="font-size: 11px; color: #15803D; margin-top: 2px; font-weight: 700;">+₹145 Above MSP (₹2,275)</div>
+            <div class="dashboard-kpi-footer">
+              <span class="chip chip-success" style="font-size: 9px;">e-NAM Verified</span>
+              <span style="color: #16A34A; font-weight: 700; display: flex; align-items: center; gap: 2px;">Mandi Rates <i data-lucide="chevron-right" style="width: 12px; height: 12px;"></i></span>
+            </div>
+          </div>
+
+          <!-- Card 4: Panchayat 15th FC Audit -->
+          <div class="dashboard-kpi-card" onclick="window.GramSetuApp.switchTab('report')">
+            <div class="dashboard-kpi-top">
+              <span class="dashboard-kpi-label">Panchayat Public Audit</span>
+              <div class="dashboard-kpi-icon" style="background: #EDE9FE; color: #7C3AED;">
+                <i data-lucide="landmark" style="width: 20px; height: 20px;"></i>
+              </div>
+            </div>
+            <div class="dashboard-kpi-value">72% Utilized</div>
+            <div style="font-size: 11px; color: var(--c-ink-soft); margin-top: 2px;">₹17.8L of ₹24.5L 15th FC Fund</div>
+            <div class="dashboard-kpi-footer">
+              <span class="chip" style="background: #EDE9FE; color: #6D28D9; font-size: 9px;">e-GramSwaraj</span>
+              <span style="color: #7C3AED; font-weight: 700; display: flex; align-items: center; gap: 2px;">Vote on Poll <i data-lucide="chevron-right" style="width: 12px; height: 12px;"></i></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIN DASHBOARD MULTI-COLUMN RESPONSIVE SPLIT -->
+        <div class="dashboard-main-grid">
+
+          <!-- PRIMARY COLUMN: ANNOUNCEMENTS, SERVICES & PUBLIC AUDIT -->
+          <div class="dashboard-main-col">
+
+            <!-- Live Alert / Announcement Banner -->
+            <div class="card card-alert-priority" style="padding: 12px 14px; margin-bottom: 0;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="status-dot orange"></span>
+                  <span style="font-size: 12px; font-weight: 800; color: #92400E;" data-i18n="panchayatNoticeTitle">Panchayat Priority Alert</span>
+                </div>
+                <span style="font-size: 11px; color: #B45309; font-weight: 600;">15m ago · Official Broadcast</span>
+              </div>
+              <div style="font-size: 13px; color: #78350F; margin-top: 4px; font-weight: 600; line-height: 1.4;" data-i18n="panchayatNoticeBody">
+                Water tanker route prioritized for Ward 4 today due to primary school vaccination camp.
+              </div>
+            </div>
+
+            <!-- Citizen Profile & Login Status Banner Card -->
+            <div class="user-profile-home-card" id="home-profile-banner" style="margin-bottom: 0;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                  <div class="user-avatar-badge unauthenticated" id="home-avatar-badge">
+                    <i data-lucide="user" style="width: 18px; height: 18px; color: var(--c-indigo);" id="home-avatar-icon"></i>
+                    <span id="home-avatar-initials" style="display: none; font-weight: 800; font-size: 13px;">RS</span>
+                  </div>
+                  <div style="min-width: 0;">
+                    <div style="font-weight: 800; font-size: 13px; color: var(--c-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="home-profile-greeting">Welcome to GramSetu</div>
+                    <div style="font-size: 11px; color: var(--c-ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" id="home-profile-subtext">Login with mobile to enable village alerts & SOS</div>
+                  </div>
+                </div>
+                <button class="btn-primary" id="btn-home-profile-action" style="width: auto; padding: 7px 14px; font-size: 11px; border-radius: 20px; white-space: nowrap; flex-shrink: 0;">
+                  <i data-lucide="log-in" style="width: 13px; height: 13px;"></i>
+                  <span id="home-profile-btn-text">Login / OTP</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- PWA Install Banner Card -->
+            <div class="pwa-install-banner" id="pwa-home-banner" style="display: none; background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border: 1px solid #334155; border-radius: 14px; padding: 12px 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.12);">
+              <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div style="width: 42px; height: 42px; border-radius: 10px; background: #ffffff; border: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: center; padding: 2px; flex-shrink: 0; overflow: hidden;">
+                    <img src="icon-192.png" alt="Digital Gramin Seva" style="width: 100%; height: 100%; object-fit: contain;">
+                  </div>
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <span style="font-weight: 800; font-size: 13px; color: #FFFFFF;" data-i18n="pwaBannerTitle">Install GramSetu App</span>
+                      <span style="font-size: 9px; font-weight: 700; background: #059669; color: #ECFDF5; padding: 2px 6px; border-radius: 6px; text-transform: uppercase;">PWA Ready</span>
+                    </div>
+                    <div style="font-size: 11px; color: #94A3B8; margin-top: 2px;" data-i18n="pwaBannerDesc">Works 100% offline in village areas. Instant alerts & zero storage footprint.</div>
+                  </div>
+                </div>
+                <button id="btn-pwa-dismiss" style="background: transparent; border: none; color: #94A3B8; cursor: pointer; padding: 2px;" title="Dismiss">
+                  <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+                </button>
+              </div>
+              <div style="display: flex; gap: 8px; margin-top: 10px;">
+                <button class="btn-primary" id="btn-pwa-install-card" style="flex: 1; padding: 8px 12px; font-size: 12px; font-weight: 700; background: #059669; border-color: #10B981; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                  <i data-lucide="download" style="width: 14px; height: 14px;"></i>
+                  <span data-i18n="pwaBannerBtn">Install on Device</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Hero Guided Demo Walkthrough Card -->
+            <div class="card card-hero" style="margin-bottom: 0;">
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                <i data-lucide="sparkles" style="width: 15px; height: 15px; color: var(--c-turmeric);"></i>
+                <span style="font-size: 11px; font-weight: 800; color: var(--c-turmeric); text-transform: uppercase; letter-spacing: 0.5px;" data-i18n="heroBadge">College Hackathon Demo</span>
+              </div>
+              <h2 style="font-size: 16px; font-weight: 800; margin-bottom: 4px;" data-i18n="heroHeading">Meera's Village Afternoon Flow</h2>
+              <p style="font-size: 12px; color: #CBD6E0; line-height: 1.4; margin-bottom: 12px;" data-i18n="heroSubtitle">
+                Experience how GramSetu solves water queues, 3-hour blackouts, and critical medicine stockouts with zero friction.
+              </p>
+
+              <!-- Interactive Tour Stepper Box -->
+              <div id="hero-tour-stepper-box" style="display: none; background: rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 12px; margin-bottom: 12px;">
+                <div style="font-size: 11px; font-weight: 700; color: var(--c-turmeric); margin-bottom: 2px;" id="hero-step-counter">Step 1 of 3</div>
+                <div style="font-weight: 700; font-size: 13px; color: #fff; margin-bottom: 2px;" id="hero-step-title">Locating Insulin for Meera's Mother</div>
+                <div style="font-size: 11px; color: #E2E8F0; line-height: 1.3;" id="hero-step-desc">All 3 local pharmacies were out. She sets a restock SMS alert instead of cycling 12 km to town.</div>
+              </div>
+
+              <div style="display: flex; gap: 8px;">
+                <button class="btn-primary btn-turmeric" id="hero-start-demo-btn" style="flex: 1; padding: 9px 12px; font-size: 12px;">
+                  <span id="hero-btn-label" data-i18n="heroStartBtn">Launch Guided Flow</span>
+                  <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+                </button>
+                <button class="btn-secondary" id="hero-cancel-demo-btn" style="display: none; width: auto; padding: 9px 12px; background: rgba(255,255,255,0.15); color: #fff; border: none;">
+                  <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick 6-Services Web Grid -->
+            <div>
+              <div class="section-title" style="margin-top: 8px;">
+                <span data-i18n="quickActionsTitle">Integrated Rural Utility Services</span>
+                <span class="section-subtitle">6 Core Pillars</span>
+              </div>
+
+              <div class="quick-services-web-grid">
+                <!-- Service 1: Water Tanker -->
+                <div class="card" style="margin-bottom: 0; padding: 14px; cursor: pointer; border-left: 4px solid var(--c-sky);" onclick="window.GramSetuApp.switchTab('water')">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <i data-lucide="truck" style="width: 18px; height: 18px; color: var(--c-sky);"></i>
+                    <span style="font-size: 13px; font-weight: 800;" data-i18n="trackTankerBtn">Track Tanker</span>
+                  </div>
+                  <p style="font-size: 11px; color: var(--c-ink-soft);" data-i18n="trackTankerDesc">Live GPS, capacity & street stop sequence</p>
+                </div>
+
+                <!-- Service 2: Urja Sangam -->
+                <div class="card" style="margin-bottom: 0; padding: 14px; cursor: pointer; border-left: 4px solid var(--c-turmeric-deep);" onclick="window.GramSetuApp.switchTab('power')">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <i data-lucide="battery-charging" style="width: 18px; height: 18px; color: var(--c-turmeric-deep);"></i>
+                    <span style="font-size: 13px; font-weight: 800;" data-i18n="p2pPowerBtn">Urja Sangam</span>
+                  </div>
+                  <p style="font-size: 11px; color: var(--c-ink-soft);" data-i18n="p2pPowerDesc">Borrow generator power from neighbors</p>
+                </div>
+
+                <!-- Service 3: Check Medicines -->
+                <div class="card" style="margin-bottom: 0; padding: 14px; cursor: pointer; border-left: 4px solid var(--c-leaf);" onclick="window.GramSetuApp.switchTab('medicine')">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <i data-lucide="search" style="width: 18px; height: 18px; color: var(--c-leaf);"></i>
+                    <span style="font-size: 13px; font-weight: 800;" data-i18n="findMedsBtn">Check Medicines</span>
+                  </div>
+                  <p style="font-size: 11px; color: var(--c-ink-soft);" data-i18n="findMedsDesc">Jan Aushadhi live stock & price savings</p>
+                </div>
+
+                <!-- Service 4: Krishi Setu -->
+                <div class="card" style="margin-bottom: 0; padding: 14px; cursor: pointer; border-left: 4px solid #15803D;" onclick="window.GramSetuApp.switchTab('krishi')">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <i data-lucide="sprout" style="width: 18px; height: 18px; color: #15803D;"></i>
+                    <span style="font-size: 13px; font-weight: 800;">Krishi Setu</span>
+                  </div>
+                  <p style="font-size: 11px; color: var(--c-ink-soft);">Live APMC Mandi Bhav, Rain & Pest AI</p>
+                </div>
+
+                <!-- Service 5: Sarkari Yojna -->
+                <div class="card" style="margin-bottom: 0; padding: 14px; cursor: pointer; border-left: 4px solid #4338CA;" onclick="window.GramSetuApp.switchTab('yojna')">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <i data-lucide="landmark" style="width: 18px; height: 18px; color: #4338CA;"></i>
+                    <span style="font-size: 13px; font-weight: 800;">Sarkari Yojna</span>
+                  </div>
+                  <p style="font-size: 11px; color: var(--c-ink-soft);">1-Min Welfare Eligibility & Grants</p>
+                </div>
+
+                <!-- Service 6: Jeevan Rakshak -->
+                <div class="card" style="margin-bottom: 0; padding: 14px; cursor: pointer; border-left: 4px solid #DC2626;" onclick="window.GramSetuApp.openBloodDonorsModal()">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <i data-lucide="heart" style="width: 18px; height: 18px; color: #DC2626;"></i>
+                    <span style="font-size: 13px; font-weight: 800;">Jeevan Rakshak</span>
+                  </div>
+                  <p style="font-size: 11px; color: var(--c-ink-soft);">Emergency Blood & Oxygen Network</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gram Sabha Public Audit & Citizen Priority e-Voting Poll -->
+            <div class="card" style="padding: 16px; margin-bottom: 0;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div>
+                  <div style="font-size: 11px; color: var(--c-ink-soft); font-weight: 700; text-transform: uppercase;">15th Finance Commission Transparency Audit</div>
+                  <div style="font-size: 18px; font-weight: 800; color: var(--c-indigo);">₹45,00,000 Total Gram Panchayat Allocation</div>
+                </div>
+                <span class="chip chip-success" style="font-size: 10px;">e-GramSwaraj Sync</span>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;">
+                <div style="background: var(--c-paper); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--c-line);">
+                  <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 11px; color: var(--c-ink);">
+                    <span>Ward 3 Concrete Road & Drainage</span>
+                    <span style="color: #059669;">85% Done</span>
+                  </div>
+                  <div class="audit-progress-wrap" style="margin-top: 6px;">
+                    <div class="audit-progress-bar" style="width: 85%;"></div>
+                  </div>
+                </div>
+
+                <div style="background: var(--c-paper); padding: 10px 12px; border-radius: 8px; border: 1px solid var(--c-line);">
+                  <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 11px; color: var(--c-ink);">
+                    <span>Primary School Solar Rooftop Inverter</span>
+                    <span style="color: #059669;">100% Completed</span>
+                  </div>
+                  <div class="audit-progress-wrap" style="margin-top: 6px;">
+                    <div class="audit-progress-bar" style="width: 100%; background: #059669;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Citizen Priority e-Voting Poll -->
+              <div style="margin-top: 14px; padding-top: 12px; border-top: 1.5px dashed var(--c-line);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                  <span style="font-size: 13px; font-weight: 800; color: var(--c-ink);">🗳️ Citizen Priority Poll: What should Panchayat fund next?</span>
+                  <span id="poll-total-votes" style="font-size: 11px; color: var(--c-ink-muted); font-weight: 700;">142 Votes Cast</span>
+                </div>
+                <div id="citizen-poll-container">
+                  <!-- Rendered dynamically by JS -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- SIDEBAR COLUMN: JEEVAN RAKSHAK, WEATHER & OFFLINE 2G GUIDE -->
+          <div class="dashboard-sidebar-col">
+
+            <!-- Jeevan Rakshak Spotlight Card -->
+            <div class="card card-emergency-spotlight" style="padding: 14px; margin-bottom: 0;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <i data-lucide="heart" style="width: 16px; height: 16px; color: #DC2626;"></i>
+                  <span style="font-size: 12px; font-weight: 800; color: #991B1B; text-transform: uppercase;">Jeevan Rakshak Directory</span>
+                </div>
+                <span class="chip chip-danger" style="font-size: 9px;">24x7 Ready</span>
+              </div>
+              <div style="font-size: 13px; font-weight: 800; color: #7F1D1D;">Emergency Blood & PHC Oxygen Reserves</div>
+              <div style="font-size: 11px; color: #991B1B; margin-top: 4px; line-height: 1.4;">
+                5 Verified blood donors on call in Rampur. Rampur PHC holds <strong>14 Type-B Oxygen Cylinders</strong> in reserve.
+              </div>
+              <button onclick="window.GramSetuApp.openBloodDonorsModal()" style="width: 100%; margin-top: 10px; padding: 8px; background: #DC2626; color: #fff; border: none; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);">
+                <i data-lucide="phone" style="width: 12px; height: 12px;"></i>
+                <span>Open Blood Donors Directory</span>
+              </button>
+            </div>
+
+            <!-- Hyperlocal Rain Radar & Canal Gate Schedule -->
+            <div class="card" style="padding: 14px; margin-bottom: 0;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <i data-lucide="cloud-rain" style="width: 16px; height: 16px; color: #0284C7;"></i>
+                  <span style="font-size: 12px; font-weight: 800; color: var(--c-indigo);">72-Hr Weather & Canal Radar</span>
+                </div>
+                <span class="chip chip-info" style="font-size: 9px;">IMD Feeds</span>
+              </div>
+              <div class="weather-radar-grid" style="margin-bottom: 10px;">
+                <div class="weather-radar-item">
+                  <div style="font-size: 10px; color: var(--c-ink-soft); font-weight: 700;">Today</div>
+                  <div style="font-size: 14px; font-weight: 800; color: var(--c-ink); margin: 2px 0;">🌤️ 32°C</div>
+                  <div style="font-size: 9px; color: #15803D; font-weight: 700;">Clear Sky</div>
+                </div>
+                <div class="weather-radar-item">
+                  <div style="font-size: 10px; color: var(--c-ink-soft); font-weight: 700;">Tomorrow</div>
+                  <div style="font-size: 14px; font-weight: 800; color: var(--c-ink); margin: 2px 0;">🌧️ 28°C</div>
+                  <div style="font-size: 9px; color: #0284C7; font-weight: 700;">85% Rain</div>
+                </div>
+                <div class="weather-radar-item">
+                  <div style="font-size: 10px; color: var(--c-ink-soft); font-weight: 700;">Canal</div>
+                  <div style="font-size: 14px; font-weight: 800; color: var(--c-ink); margin: 2px 0;">🌊 Open</div>
+                  <div style="font-size: 9px; color: #D97706; font-weight: 700;">Gate #4</div>
+                </div>
+              </div>
+              <div style="font-size: 11px; color: var(--c-ink-soft); background: var(--c-paper); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--c-line);">
+                💡 <strong>Kisan Advisory:</strong> Delay urea spraying until Saturday morning due to tomorrow's heavy showers.
+              </div>
+            </div>
+
+            <!-- Feature Phone SMS & IVR Simulator Card -->
+            <div class="card" style="background: #F8FAFC; border: 1.5px dashed #CBD5E1; padding: 14px; margin-bottom: 0;">
+              <div style="display: flex; align-items: flex-start; justify-content: space-between;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="message-square" style="width: 16px; height: 16px; color: var(--c-clay);"></i>
+                    <span style="font-size: 13px; font-weight: 700; color: var(--c-ink);" data-i18n="smsCardTitle">No Smartphone? Use 5-Word SMS</span>
+                  </div>
+                  <p style="font-size: 11px; color: var(--c-ink-soft); margin-top: 3px;" data-i18n="smsCardSub">
+                    Works on 2G keypad phones without internet via 56070.
+                  </p>
+                </div>
+                <button class="btn-secondary" id="btn-open-sms-demo-inner" style="width: auto; padding: 5px 10px; font-size: 11px;">
+                  <span data-i18n="testSmsBtn">Try Simulator</span>
+                </button>
+              </div>
+              <div style="background: var(--c-white); border: 1px solid var(--c-line); padding: 8px 10px; border-radius: 8px; margin-top: 10px; display: flex; align-items: center; justify-content: space-between;">
+                <code style="font-family: var(--font-mono); font-size: 12px; color: var(--c-indigo); font-weight: 700;">WATER RAMPUR</code>
+                <span style="font-size: 10px; color: var(--c-ink-muted);">SMS to 56070</span>
+              </div>
+            </div>
+
+            <!-- Hackathon Pitch Deck Launcher -->
+            <div class="card" style="background: linear-gradient(135deg, #1E293B, #0F172A); color: #fff; border: none; padding: 14px; margin-bottom: 0;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <div style="font-size: 10px; font-weight: 700; color: var(--c-turmeric); text-transform: uppercase;">FOR HACKATHON EVALUATORS</div>
+                  <div style="font-size: 14px; font-weight: 800; margin-top: 2px;">Architecture & Social Impact</div>
+                </div>
+                <button class="ctrl-btn" onclick="window.GramSetuApp.switchTab('pitch')" style="background: var(--c-turmeric); color: #000; border: none; font-size: 11px; font-weight: 800;">
+                  <span>View Deck</span>
+                  <i data-lucide="arrow-up-right" style="width: 13px; height: 13px;"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ================= 2. WATER SCREEN (JAL SETU) ================= -->
+      <section class="tab-screen" id="tab-water">
+        <div class="tab-two-col-grid">
+          <div>
+            <!-- Live Tanker Status Card -->
+            <div class="card card-water-hero" style="margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <i data-lucide="navigation" style="width: 14px; height: 14px; color: #BAE6FD;"></i>
+                  <span style="font-size: 12px; font-weight: 700; color: #E0F2FE;" data-i18n="tankerLiveCardTitle">Tanker #UP-32-BT-4019</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                  <button class="btn-tts-listen" id="btn-speak-tanker" onclick="window.GramSetuApp.speakTankerStatus()" title="Listen to Tanker Status">
+                    <i data-lucide="volume-2" style="width: 12px; height: 12px;"></i>
+                    <span id="tts-label-tanker">सुनिए</span>
+                  </button>
+                  <button class="btn-whatsapp-share" id="btn-whatsapp-tanker" onclick="window.GramSetuApp.shareToWhatsApp('water')" title="Broadcast to WhatsApp" style="padding: 3px 8px; font-size: 10px;">
+                    <i data-lucide="share-2" style="width: 11px; height: 11px;"></i>
+                    <span>WhatsApp</span>
+                  </button>
+                  <span class="chip" style="background: rgba(255,255,255,0.2); color: #fff;" data-i18n="enRouteStatus">En Route</span>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: baseline; gap: 6px; margin: 4px 0 2px;">
+                <span style="font-size: 38px; font-weight: 800; line-height: 1;" id="tanker-minutes-display">8</span>
+                <span style="font-size: 15px; font-weight: 600; color: #E0F2FE;" data-i18n="minRemainingLabel">Minutes to your street</span>
+              </div>
+              <p style="font-size: 11px; color: #BAE6FD; margin-bottom: 10px;" data-i18n="tankerRouteHint">
+                Route 2B: Rampur Well → Primary School Chowk → Shiv Mandir Gali
+              </p>
+
+              <!-- Water Capacity Gauge -->
+              <div style="background: rgba(255,255,255,0.12); padding: 8px 10px; border-radius: 8px; margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px;">
+                  <span>Water Remaining in Tank:</span>
+                  <strong>4,200 / 5,000 Litres (84%)</strong>
+                </div>
+                <div class="tanker-progress-bar-bg" style="margin: 0; height: 6px; background: rgba(255,255,255,0.25);">
+                  <div class="tanker-progress-fill" style="width: 84%; background: #38BDF8;"></div>
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.15); padding: 6px 10px; border-radius: 8px; margin-bottom: 10px; font-size: 11px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <i data-lucide="crosshair" style="width: 13px; height: 13px; color: #38BDF8;"></i>
+                  <span id="tanker-gps-distance-text">📍 340m from your house (Ward 4)</span>
+                </div>
+                <button class="gps-nav-btn" id="btn-navigate-tanker" style="padding: 4px 8px; font-size: 10px; background: #38BDF8; color: #0C4A6E;">
+                  <i data-lucide="map-pin" style="width: 11px; height: 11px;"></i>
+                  <span>Live GPS Walk</span>
+                </button>
+              </div>
+
+              <div style="display: flex; gap: 6px;">
+                <button class="btn-primary" id="btn-call-tanker-driver" style="flex: 1; padding: 8px 8px; background: rgba(255,255,255,0.2); font-size: 11px;">
+                  <i data-lucide="phone-call" style="width: 12px; height: 12px;"></i>
+                  <span>Call Kishore</span>
+                </button>
+                <button class="btn-primary" id="btn-view-tanker-map" style="flex: 1; padding: 8px 8px; background: rgba(255,255,255,0.2); font-size: 11px;">
+                  <i data-lucide="compass" style="width: 12px; height: 12px;"></i>
+                  <span>GIS Pinpoint</span>
+                </button>
+                <button class="btn-primary btn-turmeric" id="btn-mark-tanker-arrived" style="flex: 1.2; padding: 8px 8px; font-size: 11px;">
+                  <i data-lucide="check-circle" style="width: 12px; height: 12px;"></i>
+                  <span data-i18n="markArrivedBtn">Mark Arrived</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Request Emergency Water Tanker -->
+            <button class="btn-secondary" id="btn-request-emergency-tanker" style="margin-top: 4px; width: 100%;">
+              <i data-lucide="plus-circle" style="width: 14px; height: 14px; color: var(--c-sky);"></i>
+              <span data-i18n="requestTankerBtn">Request Diverted Tanker for Function / Ward</span>
+            </button>
+          </div>
+
+          <div>
+            <!-- Piped Water Supply Schedule -->
+            <div class="section-title" style="margin-top: 0;">
+              <span data-i18n="tapWaterScheduleTitle">Piped Tap Water Timings</span>
+              <span class="chip chip-success" data-i18n="valvePressureNormal">Pressure: 2.4 Bar (Normal)</span>
+            </div>
+
+            <div class="card" style="padding: 12px; margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--c-line);">
+                <div>
+                  <div style="font-size: 12px; font-weight: 700; color: var(--c-ink);">Morning Supply Batch</div>
+                  <div style="font-size: 11px; color: var(--c-ink-soft);">06:00 AM – 08:30 AM (Completed)</div>
+                </div>
+                <span class="chip chip-success">Delivered</span>
+              </div>
+
+              <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 8px;">
+                <div>
+                  <div style="font-size: 12px; font-weight: 700; color: var(--c-ink);">Evening Supply Batch</div>
+                  <div style="font-size: 11px; color: var(--c-ink-soft);">05:30 PM – 07:00 PM (Scheduled)</div>
+                </div>
+                <span class="chip chip-warning">In 3 hrs 12 min</span>
+              </div>
+            </div>
+
+            <!-- Community Boreholes & Public Wells Telemetry -->
+            <div class="section-title">
+              <span data-i18n="boreholeHeader">Community Wells & Borehole Status</span>
+              <span class="section-subtitle">Jal Jeevan IoT</span>
+            </div>
+
+            <div class="card" style="padding: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div>
+                  <div style="font-weight: 700; font-size: 13px;">Solar Borehole #3 (East Tola)</div>
+                  <div style="font-size: 11px; color: var(--c-ink-soft);">Groundwater Depth: 34m | Purity: 180 TDS (Sweet)</div>
+                </div>
+                <span class="chip chip-success">Motor Active</span>
+              </div>
+
+              <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px solid var(--c-line);">
+                <div>
+                  <div style="font-weight: 700; font-size: 13px;">Panchayat Handpump (Near School)</div>
+                  <div style="font-size: 11px; color: var(--c-ink-soft);">Status: Handle repaired yesterday | Purity: 210 TDS</div>
+                </div>
+                <span class="chip chip-success">Working</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 3. ELECTRICITY SCREEN (URJA SETU) ================= -->
+      <section class="tab-screen" id="tab-power">
+        <div class="tab-two-col-grid">
+          <div>
+            <!-- AI Outage Prediction Card -->
+            <div class="card card-power-hero" style="margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <i data-lucide="cpu" style="width: 15px; height: 15px; color: #FDE68A;"></i>
+                  <span style="font-size: 11px; font-weight: 800; color: #FDE68A; text-transform: uppercase;"
+                    data-i18n="aiPredictorBadge">AI Load-Shedding Predictor</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                  <button class="btn-tts-listen" id="btn-speak-power" onclick="window.GramSetuApp.speakPowerStatus()" title="Listen to Outage Forecast">
+                    <i data-lucide="volume-2" style="width: 12px; height: 12px;"></i>
+                    <span id="tts-label-power">सुनिए</span>
+                  </button>
+                  <button class="btn-whatsapp-share" id="btn-whatsapp-power" onclick="window.GramSetuApp.shareToWhatsApp('power')" title="Broadcast to WhatsApp" style="padding: 3px 8px; font-size: 10px;">
+                    <i data-lucide="share-2" style="width: 11px; height: 11px;"></i>
+                    <span>WhatsApp</span>
+                  </button>
+                  <span class="chip" style="background: rgba(255,255,255,0.18); color: #fff;" data-i18n="probChip">88% Prob</span>
+                </div>
+              </div>
+
+              <h3 style="font-size: 16px; font-weight: 800; margin: 8px 0 4px;" data-i18n="outagePredictionHeadline">2:00 PM – 4:15 PM Power Cut Likely</h3>
+              <p style="font-size: 12px; color: #FDE68A; line-height: 1.35; margin-bottom: 12px;" data-i18n="outagePredictionBody">
+                Synthesized from 7-day feeder logs, regional temperature spikes, and agricultural pump hours.
+              </p>
+
+              <!-- 7-day Bar Chart -->
+              <div style="font-size: 10px; color: #FDE68A; font-weight: 600; text-transform: uppercase;">Past 7 Days Outage Duration (Hours)</div>
+              <div class="outage-chart-container">
+                <div class="outage-bar-col">
+                  <div class="outage-bar" style="height: 55%; background: #FDE68A;" title="Mon: 2.2 hrs"></div>
+                  <span class="outage-day-label" style="color: #FEF3C7;">Mon</span>
+                </div>
+                <div class="outage-bar-col">
+                  <div class="outage-bar" style="height: 70%; background: #FDE68A;" title="Tue: 2.8 hrs"></div>
+                  <span class="outage-day-label" style="color: #FEF3C7;">Tue</span>
+                </div>
+                <div class="outage-bar-col">
+                  <div class="outage-bar" style="height: 45%; background: #FDE68A;" title="Wed: 1.8 hrs"></div>
+                  <span class="outage-day-label" style="color: #FEF3C7;">Wed</span>
+                </div>
+                <div class="outage-bar-col">
+                  <div class="outage-bar" style="height: 60%; background: #FDE68A;" title="Thu: 2.4 hrs"></div>
+                  <span class="outage-day-label" style="color: #FEF3C7;">Thu</span>
+                </div>
+                <div class="outage-bar-col">
+                  <div class="outage-bar" style="height: 85%; background: #F59E0B;" title="Fri: 3.4 hrs"></div>
+                  <span class="outage-day-label" style="color: #FEF3C7;">Fri</span>
+                </div>
+                <div class="outage-bar-col">
+                  <div class="outage-bar" style="height: 90%; background: #F59E0B;" title="Sat: 3.6 hrs"></div>
+                  <span class="outage-day-label" style="color: #FEF3C7;">Sat</span>
+                </div>
+                <div class="outage-bar-col">
+                  <div class="outage-bar" style="height: 65%; background: #FBBF24;" title="Today: Est 2.5 hrs"></div>
+                  <span class="outage-day-label" style="color: #FFFBEB; font-weight: 800;">Today</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Transformer Telemetry -->
+            <div class="section-title">
+              <span data-i18n="transformerTelemetryTitle">Rampur 63 kVA Transformer Status</span>
+              <span class="chip chip-success">Feeder Healthy</span>
+            </div>
+
+            <div class="card" style="padding: 12px; margin-bottom: 12px;">
+              <div style="font-size: 11px; color: var(--c-ink-soft); margin-bottom: 6px;">3-Phase Voltage Telemetry (Nominal: 230V):</div>
+              <div class="transformer-grid">
+                <div class="phase-box">
+                  <div class="phase-val" id="phase-a-val">228 V</div>
+                  <div class="phase-label">Phase R (Red)</div>
+                </div>
+                <div class="phase-box">
+                  <div class="phase-val" id="phase-b-val" style="color: var(--c-turmeric-deep);">214 V</div>
+                  <div class="phase-label">Phase Y (Yellow)</div>
+                </div>
+                <div class="phase-box">
+                  <div class="phase-val" id="phase-c-val">226 V</div>
+                  <div class="phase-label">Phase B (Blue)</div>
+                </div>
+              </div>
+              <div style="margin-top: 8px; font-size: 11px; color: var(--c-ink-soft); display: flex; align-items: center; justify-content: space-between;">
+                <span>Current Grid Load: <strong>64%</strong></span>
+                <span style="color: var(--c-leaf-deep); font-weight: 600;">No Overheating Risk</span>
+              </div>
+            </div>
+
+            <!-- Substation Ticket Trigger -->
+            <button class="btn-secondary" id="btn-report-pole-spark" style="margin-top: 4px; width: 100%;">
+              <i data-lucide="alert-octagon" style="width: 14px; height: 14px; color: var(--c-clay);"></i>
+              <span data-i18n="reportSparkingBtn">Report Broken Wire / Transformer Sparking</span>
+            </button>
+          </div>
+
+          <div>
+            <!-- P2P Power Sharing Network: Urja Sangam -->
+            <div class="section-title" style="margin-top: 0;">
+              <span data-i18n="p2pNetworkTitle">Urja Sangam: Neighbors with Backup Power</span>
+              <span class="section-subtitle">Life-saving Sharing</span>
+            </div>
+
+            <div class="card" style="padding: 10px 14px;">
+              <div class="p2p-power-item">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div class="p2p-avatar">RY</div>
+                  <div>
+                    <div style="font-size: 13px; font-weight: 700; color: var(--c-ink);">Ramesh Yadav</div>
+                    <div style="font-size: 11px; color: var(--c-ink-soft);">5 kVA Diesel Generator · 150m away</div>
+                    <div style="font-size: 10px; color: var(--c-leaf-deep); font-weight: 600;">Offers: Phone charging & Nebulizer power</div>
+                  </div>
+                </div>
+                <button class="ctrl-btn p2p-request-btn" data-neighbor="Ramesh Yadav" style="padding: 6px 10px; font-size: 11px;">
+                  <i data-lucide="zap" style="width: 12px; height: 12px; color: var(--c-turmeric);"></i>
+                  <span data-i18n="askPowerBtn">Connect</span>
+                </button>
+              </div>
+
+              <div class="p2p-power-item">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div class="p2p-avatar">SD</div>
+                  <div>
+                    <div style="font-size: 13px; font-weight: 700; color: var(--c-ink);">Sunita Devi (Panchayat Bhawan)</div>
+                    <div style="font-size: 11px; color: var(--c-ink-soft);">2 kW Solar Rooftop + Inverter · 300m away</div>
+                    <div style="font-size: 10px; color: var(--c-leaf-deep); font-weight: 600;">Offers: Laptop, lights & phone charging</div>
+                  </div>
+                </div>
+                <button class="ctrl-btn p2p-request-btn" data-neighbor="Sunita Devi" style="padding: 6px 10px; font-size: 11px;">
+                  <i data-lucide="zap" style="width: 12px; height: 12px; color: var(--c-turmeric);"></i>
+                  <span data-i18n="askPowerBtn">Connect</span>
+                </button>
+              </div>
+
+              <div class="p2p-power-item">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div class="p2p-avatar" style="background: #F1F5F9; color: #94A3B8;">IS</div>
+                  <div>
+                    <div style="font-size: 13px; font-weight: 700; color: #64748B;">Iqbal Provision Store</div>
+                    <div style="font-size: 11px; color: #94A3B8;">Commercial Generator · 500m away</div>
+                    <div style="font-size: 10px; color: #DC2626; font-weight: 600;">Currently at capacity (Reserved for milk chiller)</div>
+                  </div>
+                </div>
+                <span class="chip" style="background: #F1F5F9; color: #64748B;">In Use</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 4. MEDICINE SCREEN (SWASTHYA SETU) ================= -->
+      <section class="tab-screen" id="tab-medicine">
+        <div class="tab-two-col-grid">
+          <div>
+            <!-- Search bar with voice search and prescription/barcode camera scanner -->
+            <div class="search-bar-wrap">
+              <i data-lucide="search" class="search-icon-left" style="width: 16px; height: 16px;"></i>
+              <input type="text" id="medicine-search-input" class="search-input"
+                placeholder="Search medicine e.g. Insulin, ORS, Paracetamol..."
+                data-i18n-placeholder="searchMedsPlaceholder" style="padding-right: 74px;">
+              <button class="scanner-icon-btn" id="btn-med-scan" title="Scan Prescription or Medicine Strip / Barcode">
+                <i data-lucide="scan" style="width: 14px; height: 14px;"></i>
+              </button>
+              <button class="voice-search-icon-right" id="btn-med-voice-search" title="Voice Search Medicine">
+                <i data-lucide="mic" style="width: 14px; height: 14px;"></i>
+              </button>
+            </div>
+
+            <!-- Jan Aushadhi Savings Hero Card -->
+            <div class="card card-success-spotlight" style="padding: 12px; margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span class="chip chip-success" style="font-size: 10px;">Jan Aushadhi Kendra</span>
+                  <span style="font-size: 11px; font-weight: 700; color: #166534;">85% Cost Savings</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                  <button class="btn-tts-listen" id="btn-speak-meds" onclick="window.GramSetuApp.speakMedicineStatus()" title="Listen to Medicine Guidance" style="background: #15803D; color: #fff; border-color: #86EFAC;">
+                    <i data-lucide="volume-2" style="width: 12px; height: 12px;"></i>
+                    <span id="tts-label-meds">सुनिए</span>
+                  </button>
+                  <span style="font-size: 10px; color: #15803D; font-weight: 600;">Govt Generic</span>
+                </div>
+              </div>
+              <div style="font-size: 12px; color: #14532D; margin-top: 6px; line-height: 1.35;">
+                Compare generic chemical names to avoid paying private brand markups.
+              </div>
+            </div>
+
+            <!-- Quick Emergency Stock Badges -->
+            <div class="section-title">
+              <span data-i18n="criticalStocksTitle">Critical Emergency Supplies</span>
+              <span class="section-subtitle">Local Stockpile</span>
+            </div>
+
+            <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 10px;">
+              <button class="ctrl-btn med-filter-chip" data-drug="All">All</button>
+              <button class="ctrl-btn med-filter-chip" data-drug="Insulin">Insulin (Cold Chain)</button>
+              <button class="ctrl-btn med-filter-chip" data-drug="Anti-Venom">Anti-Snake Venom</button>
+              <button class="ctrl-btn med-filter-chip" data-drug="ORS">ORS Sachet</button>
+              <button class="ctrl-btn med-filter-chip" data-drug="Paracetamol">Paracetamol</button>
+              <button class="ctrl-btn med-filter-chip" data-drug="Inhaler">Asthma Inhaler</button>
+            </div>
+
+            <!-- Pharmacy List Container (Dynamically rendered & filtered) -->
+            <div id="pharmacy-list-container">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <div>
+            <!-- Jeevan Rakshak Blood & Oxygen Spotlight Card -->
+            <div class="card card-emergency-spotlight" style="padding: 14px; margin-bottom: 14px;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div style="width: 32px; height: 32px; background: #DC2626; color: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="heart" style="width: 16px; height: 16px;"></i>
+                  </div>
+                  <div>
+                    <div style="font-size: 13px; font-weight: 800; color: #991B1B;">Jeevan Rakshak Blood & O₂ Network</div>
+                    <div style="font-size: 11px; color: #B91C1C;">14 Verified Village Donors · 2 Oxygen Cylinders</div>
+                  </div>
+                </div>
+                <button class="btn-call-emergency" onclick="window.GramSetuApp.openBloodDonorsModal()">
+                  <i data-lucide="droplet" style="width: 12px; height: 12px;"></i>
+                  <span>Find Blood</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Emergency Care / ASHA Hotline Card -->
+            <div class="card card-emergency-spotlight">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <i data-lucide="shield-alert" style="width: 16px; height: 16px; color: #DC2626;"></i>
+                  <span style="font-size: 13px; font-weight: 700; color: #991B1B;">Primary Health & ASHA Hotline</span>
+                </div>
+                <span class="chip chip-danger">24x7 Emergency</span>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;">
+                <div>
+                  <div style="font-size: 12px; font-weight: 700; color: var(--c-ink);">Kamla Devi (ASHA Worker)</div>
+                  <div style="font-size: 11px; color: var(--c-ink-soft);">Carries Delivery Kit, ORS & First Aid · 250m</div>
+                </div>
+                <button class="ctrl-btn" style="background: #DC2626; color: #fff; border: none;"
+                  onclick="alert('Calling ASHA Worker Kamla Devi at +91 98765 43210...')">
+                  <i data-lucide="phone" style="width: 12px; height: 12px;"></i>
+                  <span>Call</span>
+                </button>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px; border-top: 1px solid #FEE2E2;">
+                <div>
+                  <div style="font-size: 12px; font-weight: 700; color: var(--c-ink);">108 Rural Ambulance Dispatch</div>
+                  <div style="font-size: 11px; color: var(--c-ink-soft);">Avg ETA: 14 min to Rampur gate</div>
+                </div>
+                <button class="ctrl-btn" style="background: #DC2626; color: #fff; border: none;"
+                  onclick="alert('Connecting to 108 Emergency Ambulance Dispatch...')">
+                  <i data-lucide="phone-call" style="width: 12px; height: 12px;"></i>
+                  <span>Dial 108</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 5. LIVE GIS MAP SCREEN ================= -->
+      <section class="tab-screen" id="tab-map">
+        <div class="tab-two-col-grid">
+          <div>
+            <div class="map-container-wrap">
+              <div id="village-leaflet-map"></div>
+
+              <!-- Map Legend Overlay -->
+              <div class="map-floating-legend">
+                <div style="font-weight: 700; font-size: 10px; color: var(--c-ink-muted); text-transform: uppercase;">
+                  Village Assets</div>
+                <div class="legend-item">
+                  <span class="status-dot" style="background: #0284C7;"></span>
+                  <span>Water Tanker (Moving)</span>
+                </div>
+                <div class="legend-item">
+                  <span class="status-dot" style="background: #E0921E;"></span>
+                  <span>Power Substation</span>
+                </div>
+                <div class="legend-item">
+                  <span class="status-dot" style="background: #2F7A46;"></span>
+                  <span>Jan Aushadhi / PHC</span>
+                </div>
+                <div class="legend-item">
+                  <span class="status-dot" style="background: #DC2626;"></span>
+                  <span>Citizen Issue Spot</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="section-title" style="margin-top: 0;">
+              <span data-i18n="mapScreenTitle">Interactive Village Infrastructure GIS</span>
+              <span class="chip chip-info">Leaflet Live View</span>
+            </div>
+
+            <!-- Asset Quick Jump Bar -->
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px;">
+              <button class="ctrl-btn" style="justify-content: center; font-size: 11px; padding: 10px 8px;"
+                onclick="window.GramSetuApp.centerMapOn('tanker')">
+                🚚 Water Tanker
+              </button>
+              <button class="ctrl-btn" style="justify-content: center; font-size: 11px; padding: 10px 8px;"
+                onclick="window.GramSetuApp.centerMapOn('power')">
+                ⚡ 63kVA Transformer
+              </button>
+              <button class="ctrl-btn" style="justify-content: center; font-size: 11px; padding: 10px 8px;"
+                onclick="window.GramSetuApp.centerMapOn('pharmacy')">
+                🏥 Jan Aushadhi PHC
+              </button>
+              <button class="ctrl-btn" style="justify-content: center; font-size: 11px; padding: 10px 8px;"
+                onclick="window.GramSetuApp.centerMapOn('well')">
+                💧 Solar Borehole
+              </button>
+            </div>
+
+            <div class="card" style="padding: 14px;">
+              <div style="font-size: 13px; font-weight: 800; color: var(--c-indigo); margin-bottom: 6px;">Panchayat GIS Operations Command</div>
+              <p style="font-size: 11px; color: var(--c-ink-soft); line-height: 1.5; margin-bottom: 10px;">
+                Every citizen report, tanker location, and transformer telemetry feed updates in real-time onto this spatial map layer. Sarpanch and district collectors can monitor entire blocks during monsoon floods or summer droughts.
+              </p>
+              <div style="font-size: 11px; background: var(--c-paper); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--c-line); color: var(--c-ink);">
+                📍 <strong>Active Geofence:</strong> Rampur Gram Panchayat (Ward 1 – Ward 7), Tehsil Sitapur.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 6. CITIZEN GRIEVANCE & REPORT SCREEN ================= -->
+      <section class="tab-screen" id="tab-report">
+        <div class="tab-two-col-grid">
+          <div>
+            <div class="section-title" style="margin-top: 0;">
+              <span data-i18n="reportGrievanceTitle">File a Community Infrastructure Report</span>
+              <span class="section-subtitle">Panchayat Fast-Track</span>
+            </div>
+
+            <div class="card" style="padding: 14px;">
+              <label style="display: block; font-size: 12px; font-weight: 700; color: var(--c-ink); margin-bottom: 6px;"
+                data-i18n="selectIssueCategory">Select Issue Category</label>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px;">
+
+                <button class="ctrl-btn issue-cat-btn active" data-cat="water"
+                  style="flex-direction: column; padding: 10px 6px; text-align: center;">
+                  <i data-lucide="droplet" style="width: 20px; height: 20px; color: var(--c-sky); margin-bottom: 4px;"></i>
+                  <span style="font-size: 11px;">Water Leak / Tanker</span>
+                </button>
+
+                <button class="ctrl-btn issue-cat-btn" data-cat="power"
+                  style="flex-direction: column; padding: 10px 6px; text-align: center;">
+                  <i data-lucide="zap"
+                    style="width: 20px; height: 20px; color: var(--c-turmeric-deep); margin-bottom: 4px;"></i>
+                  <span style="font-size: 11px;">Power Outage</span>
+                </button>
+
+                <button class="ctrl-btn issue-cat-btn" data-cat="medicine"
+                  style="flex-direction: column; padding: 10px 6px; text-align: center;">
+                  <i data-lucide="pill" style="width: 20px; height: 20px; color: var(--c-leaf); margin-bottom: 4px;"></i>
+                  <span style="font-size: 11px;">Drug Stockout</span>
+                </button>
+
+              </div>
+
+              <!-- Geotag Confirmation -->
+              <div
+                style="background: var(--c-paper); border: 1px solid var(--c-line); padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="map-pin" style="width: 14px; height: 14px; color: var(--c-clay);"></i>
+                <div style="font-size: 11px; color: var(--c-ink);">
+                  Auto Geotagged: <strong id="report-location-tag">Rampur Ward 3, Sitapur (27.5684° N, 80.6782° E)</strong>
+                </div>
+              </div>
+
+              <!-- Description Textarea -->
+              <label style="display: block; font-size: 12px; font-weight: 700; color: var(--c-ink); margin-bottom: 6px;"
+                data-i18n="issueDescLabel">Issue Description</label>
+              <textarea id="issue-desc-textarea" class="search-input" rows="3"
+                style="height: auto; resize: none; margin-bottom: 12px;"
+                placeholder="Describe what is wrong or speak using voice note..."></textarea>
+
+              <!-- Voice Note & Photo Simulators -->
+              <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+                <button class="btn-secondary" id="btn-record-voice-note" style="flex: 1; font-size: 11px;">
+                  <i data-lucide="mic" style="width: 13px; height: 13px; color: var(--c-leaf);"></i>
+                  <span id="voice-note-status-text">Record Voice Note</span>
+                </button>
+                <button class="btn-secondary" id="btn-attach-photo-sim" style="flex: 1; font-size: 11px;">
+                  <i data-lucide="camera" style="width: 13px; height: 13px; color: var(--c-indigo);"></i>
+                  <span id="photo-attach-status-text">Attach Geo-Photo</span>
+                </button>
+              </div>
+
+              <button class="btn-primary" id="btn-submit-grievance">
+                <i data-lucide="send" style="width: 14px; height: 14px;"></i>
+                <span data-i18n="submitReportBtn">Submit Ticket to Panchayat</span>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <!-- Recent Community Reports Feed -->
+            <div class="section-title" style="margin-top: 0;">
+              <span data-i18n="recentVillageReports">Recent Community Tickets</span>
+              <span class="section-subtitle">Transparency Log</span>
+            </div>
+
+            <div id="community-reports-feed">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 7. HACKATHON PITCH & IMPACT DESK ================= -->
+      <section class="tab-screen" id="tab-pitch">
+
+        <div class="pitch-slide-card">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <div class="hackathon-badge">Pitch Deck</div>
+            <span style="font-size: 11px; color: var(--c-ink-muted);">College Hackathon 2026</span>
+          </div>
+
+          <h2 style="font-size: 17px; font-weight: 800; color: var(--c-indigo);">GramSetu: Democratizing Rural Essential
+            Infrastructure</h2>
+          <p style="font-size: 12px; color: var(--c-ink-soft); line-height: 1.4; margin-top: 6px;">
+            Over 65% of India's population lives in rural areas where irregular water tankers, unannounced power cuts,
+            and chronic medicine shortages lead to economic loss and avoidable deaths. GramSetu bridges the last-mile
+            digital divide.
+          </p>
+
+          <!-- Problem vs Solution Breakdown -->
+          <div style="margin: 12px 0;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--c-clay); margin-bottom: 4px;">🔴 The 3 Rural
+              Pain Points Solved:</div>
+            <ul style="font-size: 11px; color: var(--c-ink-soft); padding-left: 18px; line-height: 1.5;">
+              <li><strong>Water:</strong> Villagers waste 3+ hours waiting for unscheduled water tankers or walk to dry
+                boreholes.</li>
+              <li><strong>Electricity:</strong> Random 4-hour blackouts ruin crop irrigation, milk chilling, and baby
+                nebulizers.</li>
+              <li><strong>Healthcare:</strong> Pregnant women and diabetes patients cycle 15 km only to find PHC
+                medicine racks empty.</li>
+            </ul>
+          </div>
+
+          <div style="margin: 12px 0;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--c-leaf-deep); margin-bottom: 4px;">🟢 The
+              GramSetu Innovation:</div>
+            <ul style="font-size: 11px; color: var(--c-ink-soft); padding-left: 18px; line-height: 1.5;">
+              <li><strong>Zero-Internet Offline-First:</strong> Automatic LocalStorage queue + 2G Feature Phone SMS &
+                IVR integration.</li>
+              <li><strong>Voice-First AI:</strong> Illiterate elderly citizens speak in Hindi/English to lodge reports
+                or check stock.</li>
+              <li><strong>Hyperlocal Community P2P:</strong> Urja Sangam connects families needing emergency electricity
+                with solar neighbors.</li>
+            </ul>
+          </div>
+
+          <!-- Impact Metrics Grid -->
+          <div class="pitch-metric-row">
+            <div class="pitch-stat-box">
+              <div style="font-size: 20px; font-weight: 800; color: var(--c-indigo);">42%</div>
+              <div style="font-size: 10px; color: var(--c-ink-soft);">Reduction in water waiting queues</div>
+            </div>
+            <div class="pitch-stat-box">
+              <div style="font-size: 20px; font-weight: 800; color: var(--c-leaf);">₹1,800/mo</div>
+              <div style="font-size: 10px; color: var(--c-ink-soft);">Avg family savings via Jan Aushadhi generics</div>
+            </div>
+            <div class="pitch-stat-box">
+              <div style="font-size: 20px; font-weight: 800; color: var(--c-turmeric-deep);">100%</div>
+              <div style="font-size: 10px; color: var(--c-ink-soft);">Feature phone & low-literacy inclusion</div>
+            </div>
+            <div class="pitch-stat-box">
+              <div style="font-size: 20px; font-weight: 800; color: var(--c-clay);">18 Dispatches</div>
+              <div style="font-size: 10px; color: var(--c-ink-soft);">Emergency Anti-Venom/Oxygen routed in pilot</div>
+            </div>
+          </div>
+
+          <!-- UN SDG Badges -->
+          <div style="font-size: 11px; font-weight: 700; color: var(--c-ink); margin-top: 10px;">Aligned with UN
+            Sustainable Development Goals:</div>
+          <div class="sdg-tag-row">
+            <span class="sdg-tag" style="background: #4C9F38;">SDG 3: Good Health & Well-being</span>
+            <span class="sdg-tag" style="background: #26BDE2;">SDG 6: Clean Water & Sanitation</span>
+            <span class="sdg-tag" style="background: #FCC30B; color: #000;">SDG 7: Affordable Clean Energy</span>
+            <span class="sdg-tag" style="background: #FD9D24;">SDG 11: Sustainable Rural Communities</span>
+          </div>
+
+          <!-- Technical Architecture Stack -->
+          <div
+            style="background: var(--c-paper-deep); border: 1px solid var(--c-line); border-radius: 8px; padding: 10px; margin-top: 14px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--c-indigo); margin-bottom: 6px;">Technical
+              Architecture Stack</div>
+            <div style="font-size: 11px; color: var(--c-ink-soft); line-height: 1.4;">
+              • <strong>Frontend:</strong> Responsive Glassmorphic UI with Indian Rural Palette, PWA ready.<br>
+              • <strong>Voice Layer:</strong> Web Speech API (Synthesis & Recognition) with Hindi devanagari
+              transliteration.<br>
+              • <strong>Spatial Layer:</strong> Leaflet GIS with GPS tanker routing & telemetry popups.<br>
+              • <strong>Sync Engine:</strong> Optimistic UI + LocalStorage offline sync pipeline for zero-connectivity
+              zones.<br>
+              • <strong>Telecom Gateway:</strong> Two-way SMS / USSD mock parser compatible with GSM modems.
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================= 8. KRISHI SETU (APMC MANDI & AGRI INTELLIGENCE) ================= -->
+      <section class="tab-screen" id="tab-krishi">
+        <div class="tab-two-col-grid">
+          <div>
+            <!-- Krishi Hero Header -->
+            <div class="card card-krishi-hero" style="padding: 14px; margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <i data-lucide="sprout" style="width: 16px; height: 16px; color: #86EFAC;"></i>
+                  <span style="font-size: 11px; font-weight: 800; color: #86EFAC; text-transform: uppercase;">Krishi Setu Intelligence</span>
+                </div>
+                <span class="chip" style="background: rgba(255,255,255,0.2); color: #fff; font-size: 10px;">Govt APMC Feed</span>
+              </div>
+
+              <div style="display: flex; align-items: baseline; justify-content: space-between;">
+                <div>
+                  <h3 style="font-size: 17px; font-weight: 800;" id="krishi-mandi-header">Sitapur APMC Mandi Bhav</h3>
+                  <div style="font-size: 11px; color: #DCFCE7; margin-top: 2px;">Daily Wholesale Rates vs Govt MSP Benchmarks</div>
+                </div>
+                <button class="btn-whatsapp-share" onclick="window.GramSetuApp.shareToWhatsApp('krishi')" style="padding: 4px 8px; font-size: 10px;">
+                  <i data-lucide="share-2" style="width: 11px; height: 11px;"></i>
+                  <span>Share</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Filter Chips for Crops -->
+            <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 10px;">
+              <button class="ctrl-btn crop-filter-btn active" data-crop="all" onclick="window.GramSetuApp.filterMandi('all')">All Crops</button>
+              <button class="ctrl-btn crop-filter-btn" data-crop="cereal" onclick="window.GramSetuApp.filterMandi('cereal')">Wheat & Paddy (अनाज)</button>
+              <button class="ctrl-btn crop-filter-btn" data-crop="oilseed" onclick="window.GramSetuApp.filterMandi('oilseed')">Mustard (सरसों)</button>
+              <button class="ctrl-btn crop-filter-btn" data-crop="veggie" onclick="window.GramSetuApp.filterMandi('veggie')">Potato & Tomato (सब्जियाँ)</button>
+            </div>
+
+            <!-- Live Mandi Prices Table -->
+            <div class="mandi-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <div style="font-size: 12px; font-weight: 800; color: var(--c-ink);">Today's APMC Mandi Rates (प्रति क्विंटल / ₹)</div>
+                <span style="font-size: 10px; color: #15803D; font-weight: 700;">🟢 Live Today</span>
+              </div>
+              <table class="mandi-table">
+                <thead>
+                  <tr>
+                    <th>Crop (फसल)</th>
+                    <th>Mandi Rate</th>
+                    <th>Govt MSP</th>
+                    <th>MSP Diff</th>
+                  </tr>
+                </thead>
+                <tbody id="mandi-rates-tbody">
+                  <!-- Rendered dynamically by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <!-- Hyperlocal Rain Radar & Canal Irrigation Timetable -->
+            <div class="section-title" style="margin-top: 0;">
+              <span>Kisan Mausam & Irrigation Gates</span>
+              <span class="chip chip-info">72-Hr Radar</span>
+            </div>
+
+            <div class="card" style="padding: 12px; margin-bottom: 12px;">
+              <div class="weather-radar-grid">
+                <div class="weather-radar-item">
+                  <div style="font-size: 10px; color: var(--c-ink-soft); font-weight: 700;">Today</div>
+                  <div style="font-size: 15px; font-weight: 800; color: var(--c-ink); margin: 2px 0;">🌤️ 32°C</div>
+                  <div style="font-size: 9px; color: #15803D; font-weight: 700;">10% Rain Chance</div>
+                </div>
+                <div class="weather-radar-item">
+                  <div style="font-size: 10px; color: var(--c-ink-soft); font-weight: 700;">Tomorrow</div>
+                  <div style="font-size: 15px; font-weight: 800; color: var(--c-ink); margin: 2px 0;">🌧️ 28°C</div>
+                  <div style="font-size: 9px; color: #0284C7; font-weight: 700;">85% Rain Likely</div>
+                </div>
+                <div class="weather-radar-item">
+                  <div style="font-size: 10px; color: var(--c-ink-soft); font-weight: 700;">Day After</div>
+                  <div style="font-size: 15px; font-weight: 800; color: var(--c-ink); margin: 2px 0;">⛅ 29°C</div>
+                  <div style="font-size: 9px; color: #D97706; font-weight: 700;">Canal Gate Open</div>
+                </div>
+              </div>
+
+              <!-- Canal Water Schedule -->
+              <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 8px 10px; margin-top: 8px; font-size: 11px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-weight: 700; color: #166534;">💧 Sharda Canal Feeder Gate #4 Schedule:</span>
+                  <span class="chip chip-success" style="font-size: 9px;">Scheduled</span>
+                </div>
+                <div style="color: #14532D; margin-top: 3px;">Opening: <strong>Thursday 04:00 AM – Friday 11:00 PM</strong> for paddy irrigation.</div>
+              </div>
+            </div>
+
+            <!-- AI Crop Health & Pest Diagnoser Card -->
+            <div class="card" style="border: 1.5px dashed #15803D; background: #F0FDF4; padding: 12px; margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div style="width: 32px; height: 32px; background: #DCFCE7; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="scan" style="width: 16px; height: 16px; color: #15803D;"></i>
+                  </div>
+                  <div>
+                    <div style="font-size: 13px; font-weight: 800; color: #14532D;">AI Crop Disease & Pest Scanner</div>
+                    <div style="font-size: 11px; color: #166534;">Scan diseased leaves for instant organic remedies</div>
+                  </div>
+                </div>
+                <button class="btn-primary" onclick="window.GramSetuApp.simulateCropScan()" style="width: auto; padding: 6px 10px; font-size: 11px; background: #15803D;">
+                  <span>Test Scan</span>
+                </button>
+              </div>
+              <div id="crop-scan-result-box" style="display: none; margin-top: 10px; padding: 8px; background: #fff; border-radius: 8px; border: 1px solid #86EFAC;">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 9. SARKARI YOJNA (GOVT SCHEME ELIGIBILITY AI) ================= -->
+      <section class="tab-screen" id="tab-yojna">
+        <div class="tab-two-col-grid">
+          <div>
+            <!-- Yojna Hero Header -->
+            <div class="card card-yojna-hero" style="padding: 14px; margin-bottom: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <i data-lucide="landmark" style="width: 16px; height: 16px; color: #A5B4FC;"></i>
+                  <span style="font-size: 11px; font-weight: 800; color: #A5B4FC; text-transform: uppercase;">Direct Benefit Transfer (DBT)</span>
+                </div>
+                <span class="chip" style="background: rgba(255,255,255,0.2); color: #fff; font-size: 10px;">Govt Portal Sync</span>
+              </div>
+
+              <h3 style="font-size: 17px; font-weight: 800;">Sarkari Yojna AI Matcher</h3>
+              <div style="font-size: 11px; color: #C7D2FE; margin-top: 2px;">Find eligible government grants, subsidies & health cover in 30 seconds.</div>
+            </div>
+
+            <!-- 3-Question Eligibility Finder Filter -->
+            <div class="card" style="padding: 12px; margin-bottom: 12px;">
+              <div style="font-size: 12px; font-weight: 800; color: var(--c-ink); margin-bottom: 8px;">Select Your Profile Criteria:</div>
+
+              <div style="margin-bottom: 10px;">
+                <div style="font-size: 11px; color: var(--c-ink-soft); font-weight: 700; margin-bottom: 4px;">Land Ownership:</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                  <button class="quiz-choice-btn active" id="filter-land-small" onclick="window.GramSetuApp.setYojnaFilter('land', 'small')">🌱 Small / Marginal (&lt; 2 Ha)</button>
+                  <button class="quiz-choice-btn" id="filter-land-landless" onclick="window.GramSetuApp.setYojnaFilter('land', 'landless')">🚫 Landless Laborer</button>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 10px;">
+                <div style="font-size: 11px; color: var(--c-ink-soft); font-weight: 700; margin-bottom: 4px;">Ration Card / Income Status:</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                  <button class="quiz-choice-btn active" id="filter-ration-bpl" onclick="window.GramSetuApp.setYojnaFilter('ration', 'bpl')">📜 BPL / Antyodaya</button>
+                  <button class="quiz-choice-btn" id="filter-ration-apl" onclick="window.GramSetuApp.setYojnaFilter('ration', 'apl')">📄 General / APL</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Common Service Centre (CSC) Jan Seva Kendra Helpdesk -->
+            <div class="card" style="background: #F8FAFC; border: 1.5px solid var(--c-line); padding: 12px;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <div style="font-size: 12px; font-weight: 800; color: var(--c-ink);">Nearest Jan Seva Kendra (CSC)</div>
+                  <div style="font-size: 11px; color: var(--c-ink-soft); margin-top: 2px;">Rampur CSC Center · Anil Kumar VLE (450m away)</div>
+                  <div style="font-size: 10px; color: #0284C7; font-weight: 600; margin-top: 2px;">Assists with Aadhaar, e-KYC & DBT Form Submissions</div>
+                </div>
+                <button class="btn-primary" style="width: auto; padding: 6px 12px; font-size: 11px;" onclick="alert('Calling Rampur Jan Seva Kendra operator Anil Kumar at +91 98765 11223...')">
+                  <i data-lucide="phone" style="width: 12px; height: 12px;"></i>
+                  <span>Call CSC</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <!-- Matched Schemes Feed -->
+            <div class="section-title" style="margin-top: 0;">
+              <span>Your Eligible Schemes & Grants</span>
+              <span class="chip chip-success" id="matched-schemes-count">5 Eligible</span>
+            </div>
+
+            <div id="yojna-schemes-container">
+              <!-- Rendered dynamically by JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- BOTTOM NAVIGATION DOCK -->
+    <nav class="bottom-nav-dock">
+      <button class="nav-item-btn active" data-target="home">
+        <i data-lucide="home" style="width: 18px; height: 18px;"></i>
+        <span data-i18n="navHome">Home</span>
+      </button>
+
+      <button class="nav-item-btn" data-target="water">
+        <i data-lucide="droplet" style="width: 18px; height: 18px;"></i>
+        <span data-i18n="navWater">Water</span>
+      </button>
+
+      <!-- Center Plus Button for Quick Community Incident Reporting -->
+      <button class="report-fab-btn" id="btn-floating-report" title="Report Issue">
+        <i data-lucide="plus" style="width: 24px; height: 24px;"></i>
+      </button>
+
+      <button class="nav-item-btn" data-target="power">
+        <i data-lucide="zap" style="width: 18px; height: 18px;"></i>
+        <span data-i18n="navPower">Power</span>
+      </button>
+
+      <button class="nav-item-btn" data-target="medicine">
+        <i data-lucide="pill" style="width: 18px; height: 18px;"></i>
+        <span data-i18n="navMedicine">Meds</span>
+      </button>
+    </nav>
+    <div class="mobile-home-indicator"></div>
+
+    <!-- ================= MODALS & BOTTOM SHEETS ================= -->
+
+    <!-- 1. Village Switcher Modal (PIN Code & Accurate Selection) -->
+    <div class="modal-overlay" id="modal-village-picker">
+      <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+          <div>
+            <h3 style="font-size: 15px; font-weight: 800; color: var(--c-ink);" data-i18n="selectVillageTitle">Choose
+              Your Accurate Village</h3>
+            <div style="font-size: 11px; color: var(--c-ink-soft);">Select your exact Gram Panchayat or search by Postal
+              PIN code</div>
+          </div>
+          <button class="ctrl-btn" id="btn-close-village-modal" style="padding: 4px 8px;"><i data-lucide="x"
+              style="width: 14px; height: 14px;"></i></button>
+        </div>
+
+        <!-- 6-digit PIN Code Lookup Bar -->
+        <div style="margin-bottom: 12px;">
+          <label class="location-input-label">Select via 6-Digit PIN Code (पिन कोड द्वारा खोजें):</label>
+          <div class="pincode-search-row">
+            <input type="number" id="input-picker-pincode" class="pincode-input"
+              placeholder="Enter PIN code e.g. 261001, 562101, 221002" maxlength="6">
+            <button class="pincode-lookup-btn" id="btn-picker-lookup-pincode">
+              <i data-lucide="search" style="width: 14px; height: 14px;"></i>
+              <span>Find PIN</span>
+            </button>
+          </div>
+          <div id="picker-pincode-matched-text"
+            style="font-size: 11px; color: #15803D; font-weight: 700; margin-bottom: 8px; display: none;"></div>
+        </div>
+
+        <!-- Search input for village name -->
+        <div style="margin-bottom: 10px;">
+          <input type="text" id="input-search-village-name" class="search-input"
+            placeholder="Search village by name e.g. Rampur, Kalyanpura...">
+        </div>
+
+        <div id="village-picker-options-list">
+          <!-- Populated by JS -->
+        </div>
+
+        <button class="btn-secondary" id="btn-dismiss-village-picker" style="margin-top: 10px;">
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. Feature Phone SMS & IVR Simulator Modal -->
+    <div class="modal-overlay" id="modal-sms-sim">
+      <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+          <h3 style="font-size: 14px; font-weight: 800; color: var(--c-ink);">Feature Phone SMS / USSD Engine</h3>
+          <button class="ctrl-btn" id="btn-close-sms-modal" style="padding: 4px 8px;"><i data-lucide="x"
+              style="width: 14px; height: 14px;"></i></button>
+        </div>
+        <p style="font-size: 11px; color: var(--c-ink-soft); margin-bottom: 10px;">
+          Experience how a villager with a ₹1200 Nokia/Jio phone queries GramSetu via 56070 SMS gateway.
+        </p>
+
+        <!-- Virtual Phone Device Skin -->
+        <div class="sms-device-skin">
+          <div
+            style="display: flex; justify-content: space-between; font-size: 10px; color: #94A3B8; margin-bottom: 4px;">
+            <span>AIRTEL 2G | TOWER: RAMPUR</span>
+            <span>SMS TO 56070</span>
+          </div>
+
+          <div class="sms-screen-lcd" id="sms-sim-screen-output">
+            GRAMSETU 2G SMS SERVICE<br>
+            Send keywords:<br>
+            • WATER &lt;VILLAGE&gt;<br>
+            • POWER &lt;VILLAGE&gt;<br>
+            • MED &lt;DRUG_NAME&gt;<br>
+            --------------------------<br>
+            Tap quick buttons below to test:
+          </div>
+
+          <!-- Quick test keyword buttons -->
+          <div class="sms-quick-chips">
+            <button class="sms-chip-btn" data-query="WATER RAMPUR">WATER RAMPUR</button>
+            <button class="sms-chip-btn" data-query="POWER RAMPUR">POWER RAMPUR</button>
+            <button class="sms-chip-btn" data-query="MED INSULIN">MED INSULIN</button>
+            <button class="sms-chip-btn" data-query="MED ANTIVENOM">MED ANTIVENOM</button>
+            <button class="sms-chip-btn" data-query="HELP">HELP</button>
+          </div>
+
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="sms-custom-input" placeholder="Type SMS message..."
+              style="flex: 1; padding: 6px 8px; border-radius: 6px; border: none; font-size: 12px; font-family: var(--font-mono); color: #000;">
+            <button class="ctrl-btn btn-turmeric" id="btn-send-sms-sim"
+              style="border: none; padding: 6px 12px; font-weight: 700;">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Voice AI Dialog ("GramSetu Bol") -->
+    <div class="modal-overlay" id="modal-voice-assistant">
+      <div class="modal-sheet" style="text-align: center;">
+        <div class="sheet-handle"></div>
+        <div class="brand-logo-icon" style="margin: 0 auto 10px; width: 44px; height: 44px; font-size: 24px;">ग</div>
+        <h3 style="font-size: 16px; font-weight: 800; color: var(--c-ink);" data-i18n="voiceAssistantTitle">GramSetu Bol
+          (ग्रामसेतु बोल)</h3>
+        <p style="font-size: 12px; color: var(--c-ink-soft); margin-top: 4px;" data-i18n="voiceAssistantSub">
+          Ask in Hindi or English: "दवा कहां मिलेगी?", "पानी का टैंकर कब आएगा?", "बिजली कब कटेगी?"
+        </p>
+
+        <!-- Waveform animation -->
+        <div class="voice-wave-container">
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+          <div class="wave-bar"></div>
+        </div>
+
+        <div
+          style="background: var(--c-white); border: 1px solid var(--c-line); padding: 12px; border-radius: 10px; margin-bottom: 14px; text-align: left;">
+          <div style="font-size: 10px; color: var(--c-ink-muted); text-transform: uppercase; font-weight: 700;">You said
+            / आप बोले:</div>
+          <div id="voice-recognized-text"
+            style="font-size: 13px; font-weight: 700; color: var(--c-ink); margin-top: 2px;">
+            "पानी का टैंकर कब आएगा?"
+          </div>
+          <div
+            style="font-size: 10px; color: var(--c-leaf-deep); text-transform: uppercase; font-weight: 700; margin-top: 8px;">
+            GramSetu AI Answer:</div>
+          <div id="voice-response-text" style="font-size: 12px; color: var(--c-ink-soft); margin-top: 2px;">
+            "रामपुर में टैंकर 8 मिनट में शिव मंदिर गली पहुंचेगा। उसमें 4200 लीटर पानी शेष है।"
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-primary btn-turmeric" id="btn-speak-now-trigger" style="flex: 1;">
+            <i data-lucide="mic" style="width: 14px; height: 14px;"></i>
+            <span data-i18n="speakNowBtn">Tap to Speak Now</span>
+          </button>
+          <button class="btn-secondary" id="btn-close-voice-modal" style="width: auto;">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Emergency SOS Broadcast Modal -->
+    <div class="modal-overlay" id="modal-sos-emergency">
+      <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+          <div
+            style="width: 32px; height: 32px; background: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <i data-lucide="alert-octagon" style="width: 18px; height: 18px; color: #DC2626;"></i>
+          </div>
+          <div>
+            <h3 style="font-size: 15px; font-weight: 800; color: #991B1B;" data-i18n="sosModalTitle">Village Emergency
+              Red Alert</h3>
+            <div style="font-size: 11px; color: var(--c-ink-soft);">Broadcasts high-priority alert to Asha workers &
+              Panchayat</div>
+          </div>
+        </div>
+
+        <p style="font-size: 12px; color: var(--c-ink); margin-bottom: 12px;" data-i18n="sosModalDesc">
+          Select emergency type for immediate village-wide dispatch:
+        </p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;">
+          <button class="ctrl-btn" onclick="window.GramSetuApp.triggerSosType('Snake Bite / Anti-Venom Urgency')"
+            style="padding: 10px; border-color: #FCA5A5; background: #FEF2F2; color: #991B1B; font-size: 11px; font-weight: 700; flex-direction: column; gap: 4px;">
+            <i data-lucide="cross" style="width: 16px; height: 16px;"></i>
+            <span>Snake Bite (Anti-Venom)</span>
+          </button>
+
+          <button class="ctrl-btn" onclick="window.GramSetuApp.triggerSosType('Maternity / Ambulance Callout')"
+            style="padding: 10px; border-color: #FCA5A5; background: #FEF2F2; color: #991B1B; font-size: 11px; font-weight: 700; flex-direction: column; gap: 4px;">
+            <i data-lucide="heart-pulse" style="width: 16px; height: 16px;"></i>
+            <span>Maternity / 108 Dispatch</span>
+          </button>
+
+          <button class="ctrl-btn" onclick="window.GramSetuApp.triggerSosType('Transformer Fire / High Voltage Shock')"
+            style="padding: 10px; border-color: #FCA5A5; background: #FEF2F2; color: #991B1B; font-size: 11px; font-weight: 700; flex-direction: column; gap: 4px;">
+            <i data-lucide="flame" style="width: 16px; height: 16px;"></i>
+            <span>Transformer Spark / Fire</span>
+          </button>
+
+          <button class="ctrl-btn" onclick="window.GramSetuApp.triggerSosType('Drinking Water Contamination Hazard')"
+            style="padding: 10px; border-color: #FCA5A5; background: #FEF2F2; color: #991B1B; font-size: 11px; font-weight: 700; flex-direction: column; gap: 4px;">
+            <i data-lucide="biohazard" style="width: 16px; height: 16px;"></i>
+            <span>Water Poisoning Hazard</span>
+          </button>
+        </div>
+
+        <button class="btn-secondary" id="btn-close-sos-modal">
+          Cancel Emergency
+        </button>
+      </div>
+    </div>
+
+    <!-- 5. Notification Center Modal -->
+    <div class="modal-overlay" id="modal-notifications">
+      <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div
+              style="width: 32px; height: 32px; background: var(--c-turmeric-light); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+              <i data-lucide="bell" style="width: 16px; height: 16px; color: var(--c-turmeric-deep);"></i>
+            </div>
+            <div>
+              <h3 style="font-size: 15px; font-weight: 800; color: var(--c-ink);" data-i18n="notifCenterTitle">Village
+                Live Alerts & Notices</h3>
+              <div style="font-size: 11px; color: var(--c-ink-soft);">Real-time utility & health broadcasts</div>
+            </div>
+          </div>
+          <button class="ctrl-btn" id="btn-mark-all-notifs-read" style="padding: 4px 8px; font-size: 10px;">Mark All
+            Read</button>
+        </div>
+
+        <div id="notif-center-list">
+          <!-- Populated by JS -->
+        </div>
+
+        <button class="btn-secondary" id="btn-close-notifs-modal" style="margin-top: 10px;">
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- 6. Mobile OTP Authentication & Location Onboarding Modal -->
+    <div class="modal-overlay" id="modal-auth-login">
+      <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+
+        <!-- AUTH STEP 0: Logged-in Citizen Profile View -->
+        <div id="auth-step-profile-view" style="display: none;">
+          <div style="text-align: center; margin-bottom: 14px;">
+            <div class="user-avatar-badge active"
+              style="margin: 0 auto 8px; width: 48px; height: 48px; font-size: 18px;">
+              <span id="profile-view-initials">RS</span>
+            </div>
+            <h3 style="font-size: 17px; font-weight: 800; color: var(--c-indigo);" id="profile-view-fullname">Rahul
+              Sharma</h3>
+            <div style="font-size: 12px; color: var(--c-ink-soft); font-family: var(--font-mono); margin-top: 2px;"
+              id="profile-view-phone">+91 98765 43210</div>
+            <div style="margin-top: 6px;"><span class="chip chip-success" style="font-size: 10px;">Verified Gram
+                Citizen</span></div>
+          </div>
+
+          <!-- Location Info Box -->
+          <div class="card"
+            style="background: var(--c-white); padding: 12px; margin-bottom: 14px; border: 1.5px solid var(--c-line);">
+            <div
+              style="font-size: 11px; font-weight: 700; color: var(--c-ink-muted); text-transform: uppercase; margin-bottom: 6px;">
+              Registered Location</div>
+            <div style="font-size: 14px; font-weight: 800; color: var(--c-ink);" id="profile-view-village">Rampur (Ward
+              4)</div>
+            <div style="font-size: 12px; color: var(--c-ink-soft); margin-top: 2px;" id="profile-view-region">Sitapur,
+              Uttar Pradesh · PIN: 261001</div>
+            <div style="font-size: 11px; color: #0284C7; font-family: var(--font-mono); margin-top: 4px;"
+              id="profile-view-gps">📍 GPS: 27.56°N, 80.67°E</div>
+          </div>
+
+          <!-- Profile Actions -->
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
+            <button class="btn-primary" id="btn-profile-change-location">
+              <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i>
+              <span>Change Village / PIN Code</span>
+            </button>
+            <button class="btn-secondary" id="btn-profile-edit-name">
+              <i data-lucide="user-check" style="width: 14px; height: 14px;"></i>
+              <span>Edit Name / Mobile</span>
+            </button>
+            <button class="ctrl-btn" id="btn-profile-logout"
+              style="padding: 10px; justify-content: center; color: #DC2626; border-color: #FCA5A5; background: #FEF2F2; font-weight: 700; margin-top: 4px;">
+              <i data-lucide="log-out" style="width: 14px; height: 14px;"></i>
+              <span>Log Out / Switch Citizen Account</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- AUTH STEP 1: Enter User Full Name & Mobile Number -->
+        <div id="auth-step-phone">
+          <div style="text-align: center; margin-bottom: 14px;">
+            <div class="brand-logo-icon" style="margin: 0 auto 10px; width: 54px; height: 54px; padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+              <img src="logo.png" alt="Digital Gramin Seva">
+            </div>
+            <h3 style="font-size: 16px; font-weight: 800; color: var(--c-indigo);" data-i18n="loginModalHeading">Login
+              to GramSetu</h3>
+            <p style="font-size: 12px; color: var(--c-ink-soft); margin-top: 2px;">
+              Enter your name and mobile number to receive real-time village utility & health updates.
+            </p>
+          </div>
+
+          <!-- User Full Name Input (Blank space filled by user itself) -->
+          <div class="location-input-group">
+            <label class="location-input-label">Your Full Name (आपका पूरा नाम):</label>
+            <input type="text" id="input-auth-name" class="search-input"
+              placeholder="Type your name e.g. Rahul Sharma, Sunita Devi..." value="" autocomplete="name"
+              style="font-weight: 600;">
+          </div>
+
+          <!-- Mobile Number Input -->
+          <div class="location-input-group">
+            <label class="location-input-label" data-i18n="enterMobileLabel">10-Digit Mobile Number (मोबाइल
+              नंबर):</label>
+            <div class="phone-input-wrap">
+              <div class="phone-flag-prefix">
+                <span>🇮🇳</span>
+                <span>+91</span>
+              </div>
+              <input type="tel" id="input-auth-phone" class="phone-native-input"
+                placeholder="Enter your 10-digit mobile" maxlength="10" value="" autocomplete="tel">
+            </div>
+          </div>
+
+          <button class="btn-primary" id="btn-send-otp">
+            <i data-lucide="send" style="width: 14px; height: 14px;"></i>
+            <span data-i18n="sendOtpBtn">Send Real-Life OTP via SMS</span>
+          </button>
+        </div>
+
+        <!-- AUTH STEP 2: Verify Real-Life OTP -->
+        <div id="auth-step-otp" style="display: none;">
+          <div style="text-align: center; margin-bottom: 12px;">
+            <h3 style="font-size: 16px; font-weight: 800; color: var(--c-indigo);">Enter 4-Digit Verification Code</h3>
+            <p style="font-size: 12px; color: var(--c-ink-soft); margin-top: 2px;">
+              Official OTP dispatched to <strong id="display-otp-phone">+91 </strong>
+            </p>
+          </div>
+
+          <!-- Real-Life Incoming Telecom Notification Toast -->
+          <div class="sms-toast-incoming" id="sms-toast-preview" style="display: none;">
+            <div
+              style="width: 32px; height: 32px; background: #0284C7; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <i data-lucide="message-square" style="width: 16px; height: 16px; color: #fff;"></i>
+            </div>
+            <div style="flex: 1;">
+              <div class="native-sms-header">
+                <span class="native-sms-sender">MESSAGES · AD-GRAMST (56070)</span>
+                <span class="native-sms-time">Just now</span>
+              </div>
+              <div style="font-size: 12px; line-height: 1.35; color: #E2E8F0;" id="sms-toast-code-text">
+                Your GramSetu login OTP is <strong>----</strong>. Do not share this OTP with anyone for account
+                security.
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Blank OTP Digit Boxes for manual entry -->
+          <div class="otp-boxes-row">
+            <input type="text" maxlength="1" class="otp-digit-box" id="otp-1" value="" inputmode="numeric"
+              autocomplete="one-time-code">
+            <input type="text" maxlength="1" class="otp-digit-box" id="otp-2" value="" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-digit-box" id="otp-3" value="" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-digit-box" id="otp-4" value="" inputmode="numeric">
+          </div>
+
+          <div id="otp-error-msg"
+            style="color: #DC2626; font-size: 11px; font-weight: 700; text-align: center; margin-bottom: 8px; display: none;">
+            Invalid OTP code. Please enter the 4-digit code received via SMS.
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+            <button class="btn-primary" id="btn-verify-otp" style="flex: 1;">
+              <i data-lucide="shield-check" style="width: 14px; height: 14px;"></i>
+              <span>Verify & Continue</span>
+            </button>
+          </div>
+
+          <div style="text-align: center; font-size: 11px; color: var(--c-ink-soft);">
+            Didn't receive SMS? <span style="color: var(--c-indigo); font-weight: 700; cursor: pointer;"
+              id="btn-resend-otp">Resend OTP in <span id="otp-timer-seconds">30</span>s</span>
+          </div>
+        </div>
+
+        <!-- AUTH STEP 3: Accurate Location Setup (PIN Code & Specific Village) -->
+        <div id="auth-step-location" style="display: none;">
+          <div style="margin-bottom: 12px;">
+            <h3 style="font-size: 16px; font-weight: 800; color: var(--c-indigo);" data-i18n="locationSetupTitle">Select
+              Your Accurate Location</h3>
+            <p style="font-size: 12px; color: var(--c-ink-soft); margin-top: 2px;">
+              Enter your Postal PIN Code or manually select your village/ward for accurate notifications.
+            </p>
+          </div>
+
+          <!-- PIN Code Accurate Search Row -->
+          <div class="location-input-group">
+            <label class="location-input-label">Select via 6-Digit Postal PIN Code (पिन कोड द्वारा खोजें):</label>
+            <div class="pincode-search-row">
+              <input type="number" id="input-user-pincode" class="pincode-input"
+                placeholder="e.g. 261001, 562101, 221002" maxlength="6">
+              <button class="pincode-lookup-btn" id="btn-lookup-pincode">
+                <i data-lucide="search" style="width: 14px; height: 14px;"></i>
+                <span>Find Village</span>
+              </button>
+            </div>
+            <!-- PIN Code Result Box -->
+            <div id="pincode-match-status" class="pincode-match-card">
+              <div>Matched Postal Circle: <strong id="pincode-matched-district-text">Sitapur, Uttar Pradesh</strong>
+              </div>
+              <div style="margin-top: 4px;">Select your exact Village / Gram Panchayat below:</div>
+            </div>
+            <!-- Village select dropdown from PIN Code -->
+            <div id="pincode-village-list" class="pincode-village-list" style="display: none;"></div>
+          </div>
+
+          <div style="display: flex; align-items: center; margin: 12px 0 8px; gap: 8px;">
+            <div style="flex: 1; height: 1px; background: var(--c-line);"></div>
+            <span style="font-size: 10px; color: var(--c-ink-muted); text-transform: uppercase; font-weight: 700;">Or
+              Select Details Manually</span>
+            <div style="flex: 1; height: 1px; background: var(--c-line);"></div>
+          </div>
+
+          <!-- State Selection -->
+          <div class="location-input-group">
+            <label class="location-input-label">State / राज्य</label>
+            <select class="location-select" id="select-user-state">
+              <option value="Uttar Pradesh">Uttar Pradesh (उत्तर प्रदेश)</option>
+              <option value="Bihar">Bihar (बिहार)</option>
+              <option value="Karnataka">Karnataka (ಕರ್ನಾಟಕ)</option>
+              <option value="Maharashtra">Maharashtra (महाराष्ट्र)</option>
+              <option value="Rajasthan">Rajasthan (राजस्थान)</option>
+              <option value="Madhya Pradesh">Madhya Pradesh (मध्य प्रदेश)</option>
+              <option value="West Bengal">West Bengal (পশ্চিমবঙ্গ)</option>
+              <option value="Gujarat">Gujarat (ગુજરાત)</option>
+              <option value="Tamil Nadu">Tamil Nadu (தமிழ்நாடு)</option>
+              <option value="Odisha">Odisha (ଓଡ଼ିଶା)</option>
+              <option value="Punjab">Punjab (ਪੰਜਾਬ)</option>
+              <option value="Haryana">Haryana (हरियाणा)</option>
+              <option value="Assam">Assam (অসম)</option>
+            </select>
+          </div>
+
+          <!-- District / City Selection -->
+          <div class="location-input-group">
+            <label class="location-input-label">District / City (ज़िला / शहर)</label>
+            <input type="text" class="search-input" id="input-user-district"
+              placeholder="Enter district e.g. Sitapur, Varanasi, Pune..." value="">
+          </div>
+
+          <!-- Tehsil / Block -->
+          <div class="location-input-group">
+            <label class="location-input-label">Tehsil / Block (तहसील / ब्लॉक)</label>
+            <input type="text" class="search-input" id="input-user-tehsil"
+              placeholder="Enter tehsil e.g. Biswan, Devanahalli..." value="">
+          </div>
+
+          <!-- Village / Gram Panchayat / Ward -->
+          <div class="location-input-group">
+            <label class="location-input-label">Village / Gram Panchayat / Ward (सटीक गाँव / वार्ड)</label>
+            <input type="text" class="search-input" id="input-user-village"
+              placeholder="Enter village or ward e.g. Rampur (Ward 4)..." value="">
+          </div>
+
+          <button class="btn-primary" id="btn-save-location-profile">
+            <i data-lucide="check-circle" style="width: 14px; height: 14px;"></i>
+            <span data-i18n="saveProfileBtn">Confirm Location & Activate Alerts</span>
+          </button>
+        </div>
+
+        <button class="btn-secondary" id="btn-close-auth-modal" style="margin-top: 12px;">
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- 7. Medicine Prescription & Barcode Camera Scanner Modal -->
+    <div class="modal-overlay" id="modal-med-scanner">
+      <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div
+              style="width: 32px; height: 32px; background: #DCFCE7; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+              <i data-lucide="scan" style="width: 16px; height: 16px; color: #166534;"></i>
+            </div>
+            <div>
+              <h3 style="font-size: 15px; font-weight: 800; color: var(--c-ink);">AI Medicine & Prescription Scanner
+              </h3>
+              <div style="font-size: 11px; color: var(--c-ink-soft);">Scan doctor's handwriting, medicine strips, or QR
+                code</div>
+            </div>
+          </div>
+          <button class="ctrl-btn" id="btn-close-med-scanner" style="padding: 4px 8px;"><i data-lucide="x"
+              style="width: 14px; height: 14px;"></i></button>
+        </div>
+
+        <!-- Camera Scanner Viewfinder -->
+        <div class="scanner-viewport-wrap">
+          <video id="scanner-camera-feed" class="scanner-video-preview" autoplay playsinline muted
+            style="display: none;"></video>
+          <div id="scanner-simulated-view" style="color: #fff; text-align: center; padding: 20px; z-index: 2;">
+            <i data-lucide="camera" style="width: 38px; height: 38px; margin: 0 auto 8px; color: #4ADE80;"></i>
+            <div style="font-size: 13px; font-weight: 700;">Point Camera at Prescription or Medicine Strip</div>
+            <div style="font-size: 10px; color: #94A3B8; margin-top: 4px;">Smart OCR automatically extracts drug name &
+              checks Jan Aushadhi generic stocks</div>
+          </div>
+          <div class="scanner-reticle-box">
+            <div class="scanner-laser-line"></div>
+          </div>
+        </div>
+
+        <!-- Preset sample scan buttons for quick demo in hackathons -->
+        <div style="font-size: 11px; font-weight: 700; color: var(--c-ink-soft); margin-bottom: 6px;">Tap a sample
+          prescription to simulate instant AI scan:</div>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px;">
+          <button class="ctrl-btn scan-preset-btn" data-drug="Insulin" data-brand="Lantus Insulin 100IU"
+            data-generic="Insulin Glargine" data-savings="₹330">
+            📄 Prescription: Insulin Glargine
+          </button>
+          <button class="ctrl-btn scan-preset-btn" data-drug="Paracetamol" data-brand="Dolo 650mg Strip"
+            data-generic="Paracetamol 650mg" data-savings="₹27">
+            💊 Strip: Paracetamol 650
+          </button>
+          <button class="ctrl-btn scan-preset-btn" data-drug="Inhaler" data-brand="Asthalin Inhaler"
+            data-generic="Salbutamol Inhaler 100mcg" data-savings="₹165">
+            🫁 Prescription: Asthma Inhaler
+          </button>
+        </div>
+
+        <!-- Dynamic Scan Result Card -->
+        <div id="scanner-scan-result-card" style="display: none;" class="scanner-result-card">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span class="chip chip-success" style="font-size: 10px;">OCR Match Confirmed (98.4%)</span>
+            <span style="font-size: 11px; font-weight: 800; color: #15803D;" id="scan-savings-badge">Save ₹330
+              (73%)</span>
+          </div>
+
+          <div style="margin-top: 8px;">
+            <div style="font-size: 11px; color: var(--c-ink-muted);">Detected Branded Medicine:</div>
+            <div style="font-size: 14px; font-weight: 800; color: var(--c-ink);" id="scan-detected-drug-name">Lantus
+              Insulin Glargine 100IU</div>
+          </div>
+
+          <div
+            style="background: #fff; border: 1px solid #BBF7D0; padding: 8px 10px; border-radius: 8px; margin: 8px 0; font-size: 11px;">
+            <div style="display: flex; justify-content: space-between;">
+              <span>Jan Aushadhi Generic Substitute:</span>
+              <strong style="color: #166534;" id="scan-generic-name">Insulin Glargine (Generic)</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+              <span>Price Difference:</span>
+              <span>Branded: <del id="scan-brand-price">₹450</del> → <strong>₹120</strong></span>
+            </div>
+          </div>
+
+          <div
+            style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; margin-bottom: 8px;">
+            <span style="color: var(--c-ink-soft);">Stock at Jan Aushadhi Rampur:</span>
+            <strong style="color: #15803D;" id="scan-availability-status">Available (0.4 km away)</strong>
+          </div>
+
+          <button class="btn-primary" id="btn-reserve-scanned-drug">
+            <i data-lucide="check" style="width: 14px; height: 14px;"></i>
+            <span>Reserve Generic at Jan Aushadhi Kendra</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Live Turn-by-Turn GPS Navigation Modal -->
+    <div class="modal-overlay" id="modal-gps-directions">
+      <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div
+              style="width: 32px; height: 32px; background: var(--c-sky-light); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+              <i data-lucide="navigation" style="width: 16px; height: 16px; color: var(--c-sky);"></i>
+            </div>
+            <div>
+              <h3 style="font-size: 15px; font-weight: 800; color: var(--c-ink);" id="nav-target-title">Turn-by-Turn GPS
+                Navigation</h3>
+              <div style="font-size: 11px; color: var(--c-ink-soft);" id="nav-target-subtitle">Walking route from your
+                current location</div>
+            </div>
+          </div>
+          <button class="ctrl-btn" id="btn-close-gps-directions" style="padding: 4px 8px;"><i data-lucide="x"
+              style="width: 14px; height: 14px;"></i></button>
+        </div>
+
+        <!-- Live Distance Gauge -->
+        <div
+          style="background: linear-gradient(135deg, #0284C7, #0369A1); color: #fff; padding: 14px; border-radius: var(--radius-md); margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <div style="font-size: 32px; font-weight: 800;" id="nav-live-distance">340 m</div>
+            <div style="font-size: 14px; font-weight: 600;" id="nav-live-eta">~4 min walk</div>
+          </div>
+          <div style="font-size: 11px; color: #BAE6FD; margin-top: 4px;" id="nav-next-step-instruction">
+            ➡️ Turn right past Primary School well towards Shiv Mandir Chowk
+          </div>
+        </div>
+
+        <!-- Step-by-Step Milestones -->
+        <div class="card" style="padding: 12px; margin-bottom: 10px;">
+          <div style="font-size: 12px; font-weight: 700; color: var(--c-ink); margin-bottom: 8px;">Walking Route
+            Milestones</div>
+          <div id="nav-milestones-list">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-primary" id="btn-open-google-maps" style="flex: 1; background: #0F9D58;">
+            <i data-lucide="map" style="width: 14px; height: 14px;"></i>
+            <span>Open in Google Maps</span>
+          </button>
+          <button class="btn-secondary" id="btn-dismiss-nav" style="width: auto;">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. Install & Share App Modal -->
+    <div class="modal-overlay" id="modal-install-app">
+      <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div
+              style="width: 38px; height: 38px; background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+              <i data-lucide="download-cloud" style="width: 20px; height: 20px; color: #059669;"></i>
+            </div>
+            <div>
+              <h3 style="font-size: 15px; font-weight: 800; color: var(--c-ink); margin: 0;" data-i18n="installModalTitle">
+                Install GramSetu App</h3>
+              <div style="font-size: 11px; color: var(--c-ink-soft);" data-i18n="installModalSubtitle">
+                Install on mobile or PC for instant offline access</div>
+            </div>
+          </div>
+          <button class="ctrl-btn" id="btn-close-install-modal" style="padding: 4px 8px;">
+            <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+          </button>
+        </div>
+
+        <!-- Install Feedback / Alert Banner -->
+        <div id="install-prompt-feedback" style="display: none; padding: 10px 12px; border-radius: 10px; font-size: 11px; font-weight: 700; margin-bottom: 12px;" class="install-feedback-toast"></div>
+
+        <!-- 1-Click Install Button (Native PWA trigger) -->
+        <div
+          style="background: linear-gradient(135deg, #0F172A, #1E293B); border-radius: 12px; padding: 14px; color: #fff; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <div
+              style="width: 44px; height: 44px; border-radius: 10px; background: #fff; border: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: center; padding: 2px; flex-shrink: 0; overflow: hidden;">
+              <img src="icon-192.png" alt="GramSetu" style="width: 100%; height: 100%; object-fit: contain;">
+            </div>
+            <div style="flex: 1;">
+              <div style="font-weight: 800; font-size: 14px; color: #FFFFFF;">GramSetu (ग्रामसेतु)</div>
+              <div style="font-size: 11px; color: #94A3B8;">Pan-India Rural Utility PWA • Fast & Offline</div>
+            </div>
+          </div>
+          <button class="btn-primary" id="btn-modal-install-now"
+            style="width: 100%; background: #059669; border-color: #10B981; font-weight: 800; padding: 11px; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);">
+            <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+            <span data-i18n="installDirectBtn">📲 1-Click Install to Home Screen</span>
+          </button>
+          <div id="install-btn-tip" style="font-size: 10px; color: #94A3B8; text-align: center; margin-top: 6px;">Zero download size • Instant offline access</div>
+        </div>
+
+        <!-- Shareable Web Link Box -->
+        <div class="card" style="padding: 14px; margin-bottom: 14px; background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 12px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <div
+              style="font-size: 11px; font-weight: 700; color: var(--c-ink); text-transform: uppercase; display: flex; align-items: center; gap: 6px;">
+              <i data-lucide="link-2" style="width: 13px; height: 13px; color: #0284C7;"></i>
+              <span>Shareable Web & Install Link:</span>
+            </div>
+            <span style="font-size: 10px; font-weight: 700; color: #059669; background: #ECFDF5; border: 1px solid #A7F3D0; padding: 2px 7px; border-radius: 10px;">HTTPS Live ✓</span>
+          </div>
+
+          <!-- Clickable Link Box -->
+          <div style="display: flex; align-items: center; gap: 8px; background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 8px; padding: 7px 10px; margin-bottom: 10px;">
+            <i data-lucide="globe" style="width: 14px; height: 14px; color: #0284C7; flex-shrink: 0;"></i>
+            <a id="install-link-anchor" href="https://rohitkumar9112007.github.io/GramSetu/" target="_blank" rel="noopener"
+              style="flex: 1; font-size: 11px; font-family: monospace; color: #0284C7; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+              title="Click to open live link">https://rohitkumar9112007.github.io/GramSetu/</a>
+            <button type="button" id="btn-quick-copy-icon" style="background: none; border: none; cursor: pointer; padding: 2px; color: #64748B;" title="Quick Copy">
+              <i data-lucide="copy" style="width: 14px; height: 14px;"></i>
+            </button>
+          </div>
+
+          <!-- Hidden input kept for full script compatibility -->
+          <input type="text" id="install-link-input" readonly value="https://rohitkumar9112007.github.io/GramSetu/" style="display: none;">
+
+          <!-- 3 Action Buttons: Open Link, Copy Link, WhatsApp/Share -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+            <a id="btn-open-install-link" href="https://rohitkumar9112007.github.io/GramSetu/" target="_blank" rel="noopener"
+              class="btn-secondary install-link-action-btn"
+              style="margin: 0; padding: 8px 4px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 4px; text-decoration: none; border-radius: 8px; border: 1px solid #CBD5E1; background: #FFFFFF; color: #0F172A;">
+              <i data-lucide="external-link" style="width: 12px; height: 12px; color: #0284C7;"></i>
+              <span id="open-link-label">Open Link</span>
+            </a>
+
+            <button type="button" class="btn-primary install-link-action-btn" id="btn-copy-install-link"
+              style="width: 100%; margin: 0; padding: 8px 4px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border-radius: 8px; background: #0F172A; border-color: #334155;">
+              <i data-lucide="copy" style="width: 12px; height: 12px;"></i>
+              <span id="copy-link-label">Copy Link</span>
+            </button>
+
+            <button type="button" class="btn-primary install-link-action-btn" id="btn-share-install-link"
+              style="width: 100%; margin: 0; padding: 8px 4px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border-radius: 8px; background: #16A34A; border-color: #22C55E;">
+              <i data-lucide="share-2" style="width: 12px; height: 12px;"></i>
+              <span id="share-link-label">WhatsApp</span>
+            </button>
+          </div>
+
+          <!-- Mobile Scan QR Expandable toggle -->
+          <div style="margin-top: 10px; border-top: 1px dashed #E2E8F0; padding-top: 10px; text-align: center;">
+            <button id="btn-toggle-qr-code" type="button"
+              style="background: none; border: none; font-size: 11px; font-weight: 700; color: #0284C7; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+              <i data-lucide="qr-code" style="width: 13px; height: 13px;"></i>
+              <span id="qr-toggle-text">Scan QR to Install on Mobile</span>
+              <i data-lucide="chevron-down" id="qr-chevron" style="width: 12px; height: 12px;"></i>
+            </button>
+            <div id="install-qr-container" style="display: none; margin-top: 10px; padding: 12px; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px;">
+              <img id="install-qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&amp;data=https%3A%2F%2Frohitkumar9112007.github.io%2FGramSetu%2F" alt="Scan to install GramSetu" style="width: 130px; height: 130px; margin: 0 auto; display: block; border-radius: 8px; border: 1px solid #E2E8F0;">
+              <div style="font-size: 10px; color: #64748B; margin-top: 6px; font-weight: 600;">Scan with Phone Camera or Google Lens to open &amp; install directly</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step-by-Step Device Instructions -->
+        <div style="font-size: 12px; font-weight: 700; color: var(--c-ink); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+          <span>How to Install on Any Device:</span>
+          <span style="font-size: 10px; color: var(--c-ink-soft); font-weight: 500;">Offline PWA Guide</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px;">
+          <!-- Android -->
+          <div id="guide-card-android"
+            style="background: #fff; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; display: flex; gap: 10px; align-items: flex-start; transition: all 0.3s ease;">
+            <div
+              style="background: #E0F2FE; color: #0284C7; font-weight: 800; font-size: 11px; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              1</div>
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="font-size: 12px; font-weight: 700; color: var(--c-ink);">Android (Chrome / Edge / Brave)</div>
+                <span id="badge-device-android" class="device-detected-badge" style="display: none;">⭐ Your Device</span>
+              </div>
+              <div style="font-size: 11px; color: var(--c-ink-soft); margin-top: 2px;">
+                Tap top-right <strong>⋮ (three dots)</strong> menu → Tap <strong>"Install app"</strong> or <strong>"Add to
+                  Home screen"</strong>.
+              </div>
+            </div>
+          </div>
+          <!-- iPhone / iOS -->
+          <div id="guide-card-ios"
+            style="background: #fff; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; display: flex; gap: 10px; align-items: flex-start; transition: all 0.3s ease;">
+            <div
+              style="background: #FEF3C7; color: #D97706; font-weight: 800; font-size: 11px; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              2</div>
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="font-size: 12px; font-weight: 700; color: var(--c-ink);">iPhone / iPad (Apple Safari)</div>
+                <span id="badge-device-ios" class="device-detected-badge" style="display: none;">⭐ Your Device</span>
+              </div>
+              <div style="font-size: 11px; color: var(--c-ink-soft); margin-top: 2px;">
+                Tap bottom <strong>Share button</strong> (square with arrow ↑) → Scroll down & tap <strong>"Add to Home
+                  Screen"</strong>.
+              </div>
+            </div>
+          </div>
+          <!-- Desktop / Laptop -->
+          <div id="guide-card-desktop"
+            style="background: #fff; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; display: flex; gap: 10px; align-items: flex-start; transition: all 0.3s ease;">
+            <div
+              style="background: #DCFCE7; color: #15803D; font-weight: 800; font-size: 11px; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              3</div>
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="font-size: 12px; font-weight: 700; color: var(--c-ink);">PC / Laptop (Chrome / Edge)</div>
+                <span id="badge-device-desktop" class="device-detected-badge" style="display: none;">⭐ Your Device</span>
+              </div>
+              <div style="font-size: 11px; color: var(--c-ink-soft); margin-top: 2px;">
+                Click the <strong>Install icon (⊕)</strong> on the right side of the browser URL bar.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-secondary" id="btn-dismiss-install-modal" style="width: 100%;">
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- 10. Jeevan Rakshak: Village Emergency Blood & Oxygen Modal -->
+    <div class="modal-overlay" id="modal-blood-donors">
+      <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 32px; height: 32px; background: #FEE2E2; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+              <i data-lucide="heart" style="width: 16px; height: 16px; color: #DC2626;"></i>
+            </div>
+            <div>
+              <h3 style="font-size: 15px; font-weight: 800; color: var(--c-ink);">Jeevan Rakshak: Blood & O₂ Network</h3>
+              <div style="font-size: 11px; color: var(--c-ink-soft);">Verified emergency village volunteers</div>
+            </div>
+          </div>
+          <button class="ctrl-btn" id="btn-close-blood-modal" style="padding: 4px 8px;"><i data-lucide="x" style="width: 14px; height: 14px;"></i></button>
+        </div>
+
+        <!-- Village Oxygen Reserves Status Box -->
+        <div class="card" style="background: #EFF6FF; border: 1.5px solid #BFDBFE; padding: 10px; margin-bottom: 10px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span class="status-dot" style="background: #0284C7;"></span>
+              <strong style="font-size: 11px; color: #1E40AF;">Village Emergency Oxygen Supply</strong>
+            </div>
+            <span class="chip chip-info" style="font-size: 9px;">2 Cylinders Ready</span>
+          </div>
+          <div style="font-size: 11px; color: #1E3A8A; margin-top: 4px;">
+            📍 Location: Rampur PHC (1 Cylinder) & Panchayat Bhawan (1 Cylinder + 1 Nebulizer)
+          </div>
+        </div>
+
+        <!-- Filter by Blood Group -->
+        <div style="font-size: 11px; font-weight: 700; color: var(--c-ink-soft); margin-bottom: 6px;">Filter by Blood Group:</div>
+        <div style="display: flex; gap: 5px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 10px;">
+          <button class="ctrl-btn blood-filter-chip active" data-bg="all" onclick="window.GramSetuApp.filterBlood('all')">All</button>
+          <button class="ctrl-btn blood-filter-chip" data-bg="O+" onclick="window.GramSetuApp.filterBlood('O+')">O+</button>
+          <button class="ctrl-btn blood-filter-chip" data-bg="O-" onclick="window.GramSetuApp.filterBlood('O-')">O- (Universal)</button>
+          <button class="ctrl-btn blood-filter-chip" data-bg="A+" onclick="window.GramSetuApp.filterBlood('A+')">A+</button>
+          <button class="ctrl-btn blood-filter-chip" data-bg="B+" onclick="window.GramSetuApp.filterBlood('B+')">B+</button>
+          <button class="ctrl-btn blood-filter-chip" data-bg="AB+" onclick="window.GramSetuApp.filterBlood('AB+')">AB+</button>
+        </div>
+
+        <!-- Donors List -->
+        <div id="blood-donors-list" style="max-height: 280px; overflow-y: auto; margin-bottom: 10px;">
+          <!-- Rendered dynamically by JS -->
+        </div>
+
+        <button class="btn-primary" onclick="alert('Thank you! GramSetu ASHA coordinator will verify your blood group and add you to the village directory.')" style="margin-bottom: 8px;">
+          <i data-lucide="plus" style="width: 14px; height: 14px;"></i>
+          <span>Register as Volunteer Blood Donor</span>
+        </button>
+
+        <button class="btn-secondary" id="btn-dismiss-blood-modal">
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- 11. Zero-Signal P2P Offline QR Mesh Modal -->
+    <div class="modal-overlay" id="modal-qr-mesh">
+      <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 32px; height: 32px; background: #E0F2FE; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+              <i data-lucide="qr-code" style="width: 16px; height: 16px; color: #0284C7;"></i>
+            </div>
+            <div>
+              <h3 style="font-size: 15px; font-weight: 800; color: var(--c-ink);">Zero-Signal P2P QR Handshake</h3>
+              <div style="font-size: 11px; color: var(--c-ink-soft);">Camera-to-camera offline sync during network outages</div>
+            </div>
+          </div>
+          <button class="ctrl-btn" id="btn-close-qr-mesh" style="padding: 4px 8px;"><i data-lucide="x" style="width: 14px; height: 14px;"></i></button>
+        </div>
+
+        <p style="font-size: 11px; color: var(--c-ink-soft); margin-bottom: 10px;">
+          When mobile towers are down, scan this QR code on another villager's device to exchange latest water tanker locations and offline grievance tickets.
+        </p>
+
+        <!-- QR Canvas Wrap -->
+        <div class="qr-canvas-box">
+          <svg class="qr-code-svg" viewBox="0 0 100 100" fill="#1C3550">
+            <!-- Simulated Authentic Crisp QR Matrix -->
+            <rect x="5" y="5" width="28" height="28" fill="none" stroke="#1C3550" stroke-width="4"/>
+            <rect x="11" y="11" width="16" height="16" fill="#1C3550"/>
+            <rect x="67" y="5" width="28" height="28" fill="none" stroke="#1C3550" stroke-width="4"/>
+            <rect x="73" y="11" width="16" height="16" fill="#1C3550"/>
+            <rect x="5" y="67" width="28" height="28" fill="none" stroke="#1C3550" stroke-width="4"/>
+            <rect x="11" y="73" width="16" height="16" fill="#1C3550"/>
+            <rect x="42" y="8" width="6" height="6"/>
+            <rect x="52" y="18" width="6" height="6"/>
+            <rect x="40" y="40" width="20" height="20" fill="#E0921E"/>
+            <rect x="15" y="42" width="6" height="6"/>
+            <rect x="75" y="48" width="6" height="6"/>
+            <rect x="45" y="68" width="6" height="6"/>
+            <rect x="62" y="72" width="6" height="6"/>
+            <rect x="80" y="78" width="8" height="8"/>
+            <rect x="48" y="85" width="6" height="6"/>
+          </svg>
+          <div style="font-size: 11px; font-weight: 800; color: var(--c-indigo); margin-top: 10px;">Token: GRAM-SYNC-4892-OFFLINE</div>
+          <div style="font-size: 10px; color: var(--c-ink-soft);">Rampur · 3 Queued Reports · Tanker UP-32-BT-4019</div>
+        </div>
+
+        <button class="btn-primary" onclick="window.GramSetuApp.simulateQrSync()" style="margin-bottom: 8px;">
+          <i data-lucide="scan-line" style="width: 14px; height: 14px;"></i>
+          <span>Simulate Peer Handshake / Scan QR</span>
+        </button>
+
+        <div id="qr-sync-success-msg" style="display: none; background: #DCFCE7; border: 1px solid #86EFAC; color: #15803D; font-size: 11px; font-weight: 700; padding: 8px; border-radius: 8px; text-align: center; margin-bottom: 8px;">
+          ✅ Peer Sync Complete! 2 local reports exchanged with Panchayat mesh.
+        </div>
+
+        <button class="btn-secondary" id="btn-dismiss-qr-mesh">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Main Application Script -->
+  <script src="app.js"></script>
+</body>
+
+</html>
